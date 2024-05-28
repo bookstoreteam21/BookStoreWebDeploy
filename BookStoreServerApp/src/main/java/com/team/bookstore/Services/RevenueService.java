@@ -123,7 +123,7 @@ public class RevenueService {
                 totalImport.addAndGet((int) revenueDay.getTotal_import());
             });
             RevenueMonth revenueMonth = new RevenueMonth();
-            revenueMonth.setMonth(revenueDays.getFirst().getDay());
+            revenueMonth.setMonth(revenueDays.get(0).getDay());
             revenueMonth.setTotal_sale(totalSales.longValue());
             revenueMonth.setTotal_import(totalImport.longValue());
             revenueMonth.setRevenue(totalSales.longValue() - totalImport.longValue());
@@ -145,7 +145,7 @@ public class RevenueService {
                 totalImport.addAndGet((int) revenueMonth.getTotal_import());
             });
             RevenueYear revenueYear = new RevenueYear();
-            revenueYear.setYear(revenueMonths.getFirst().getMonth());
+            revenueYear.setYear(revenueMonths.get(0).getMonth());
             revenueYear.setTotal_sale(totalSales.longValue());
             revenueYear.setTotal_import(totalImport.longValue());
             revenueYear.setRevenue(totalSales.longValue() - totalImport.longValue());
