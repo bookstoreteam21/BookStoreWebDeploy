@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Log4j2
-@CrossOrigin(origins = "https://bookstorebackend-production-7f54.up.railway" +
-        ".app/BookStore", maxAge = 3600)
 @RestController
 @RequestMapping("/book")
 public class BookController {
