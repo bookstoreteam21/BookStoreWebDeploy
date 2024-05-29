@@ -97,7 +97,9 @@ public class CustomerService {
             customerInformation.setId(id);
             CustomerInformation savedCustomerInformation =
                     customerInformationRepository.save(customerInformation);
-            customerInformation.setIsvip(false);
+            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())|| customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
+                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            }
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
         } catch(Exception e){
@@ -114,6 +116,9 @@ public class CustomerService {
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
             customerInformation.setId(id);
+            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())|| customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
+                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            }
             CustomerInformation savedCustomerInformation = customerInformationRepository.save(customerInformation);
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
         }catch(Exception e){
@@ -151,7 +156,6 @@ public class CustomerService {
             }
             CustomerInformation verifyCustomer =
                     customerInformationRepository.findCustomerInformationById(userRepository.findUsersByUsername(authentication.getName()).getId());
-            verifyCustomer.setIsvip(true);
             return "Verify Successfully";
         }catch (Exception e){
             log.info(e);

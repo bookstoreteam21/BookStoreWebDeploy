@@ -1,10 +1,7 @@
 package com.team.bookstore.Controllers;
 
 import com.nimbusds.jose.JOSEException;
-import com.team.bookstore.Dtos.Requests.IntrospectRequest;
-import com.team.bookstore.Dtos.Requests.LogoutRequest;
-import com.team.bookstore.Dtos.Requests.RefreshTokenRequest;
-import com.team.bookstore.Dtos.Requests.UsernameLoginRequest;
+import com.team.bookstore.Dtos.Requests.*;
 import com.team.bookstore.Dtos.Responses.APIResponse;
 import com.team.bookstore.Dtos.Responses.AuthenticationResponse;
 import com.team.bookstore.Dtos.Responses.IntrospectResponse;
@@ -32,8 +29,20 @@ public class AuthenticationController {
     ResponseEntity<APIResponse<?>> authenticate(@RequestBody UsernameLoginRequest usernameLoginRequest) throws AuthenticationException {
         AuthenticationResponse result =
                 authenticationService.authenticate(usernameLoginRequest);
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result
+        ).build());
+    }
+    @PostMapping("/phone-login")
+    ResponseEntity<APIResponse<?>> phoneLogin(@RequestBody UserPhoneLoginRequest userPhoneLoginRequest) throws AuthenticationException {
+        AuthenticationResponse result =
+                authenticationService.phoneNumberLogin(userPhoneLoginRequest);
+        return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result
+        ).build());
+    }
+    @PostMapping("/email-login")
+    ResponseEntity<APIResponse<?>> emailLogin(@RequestBody UserEmailLoginRequest userEmailLoginRequest) throws AuthenticationException {
+        AuthenticationResponse result =
+                authenticationService.userEmailLogin(userEmailLoginRequest);
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result
         ).build());
     }

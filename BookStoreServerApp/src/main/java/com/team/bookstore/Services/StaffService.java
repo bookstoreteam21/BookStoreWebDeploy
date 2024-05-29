@@ -71,6 +71,9 @@ public class StaffService {
             }
             staffInformation.setId(id);
             StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
+            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())|| staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
+                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            }
             return userMapper.toStaffInformationResponse(savedStaffInformation);
 
         } catch(Exception e){
@@ -107,6 +110,9 @@ public class StaffService {
             }
             staffInformation.setId(id);
             StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
+            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())|| staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
+                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            }
             return userMapper.toStaffInformationResponse(savedStaffInformation);
         }catch(Exception e){
             log.info(e);

@@ -4,17 +4,16 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.team.bookstore.Dtos.Requests.IntrospectRequest;
-import com.team.bookstore.Dtos.Requests.LogoutRequest;
-import com.team.bookstore.Dtos.Requests.RefreshTokenRequest;
-import com.team.bookstore.Dtos.Requests.UsernameLoginRequest;
+import com.team.bookstore.Dtos.Requests.*;
 import com.team.bookstore.Dtos.Responses.AuthenticationResponse;
 import com.team.bookstore.Dtos.Responses.IntrospectResponse;
 import com.team.bookstore.Entities.InvalidatedToken;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Enums.ErrorCodes;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Repositories.CustomerInformationRepository;
 import com.team.bookstore.Repositories.InvalidatedTokenRepository;
+import com.team.bookstore.Repositories.StaffInformationRepository;
 import com.team.bookstore.Repositories.UserRepository;
 import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
@@ -40,6 +39,10 @@ public class AuthenticationService {
     PasswordEncoder            passwordEncoder;
     @Autowired
     InvalidatedTokenRepository invalidatedTokenRepository;
+    @Autowired
+    CustomerInformationRepository customerInformationRepository;
+    @Autowired
+    StaffInformationRepository staffInformationRepository;
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
     @NonFinal
@@ -48,7 +51,6 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
-
     public AuthenticationResponse authenticate(UsernameLoginRequest request) throws AuthenticationException {
         String      username  = request.getUsername();
         String     password  = request.getPassword();
@@ -68,7 +70,54 @@ public class AuthenticationService {
                 .token(user.getToken())
                 .build();
     }
-
+    public AuthenticationResponse phoneNumberLogin(UserPhoneLoginRequest userPhoneLoginRequest){
+        try{
+            Integer user_id = null;
+            if(customerInformationRepository.existsCustomerInformationByPhonenumber(userPhoneLoginRequest.getPhonenumber())){
+                user_id =
+                        customerInformationRepository.findCustomerInformationByPhonenumber(userPhoneLoginRequest.getPhonenumber()).getId();
+            }
+            else if(staffInformationRepository.existsStaffInformationByPhonenumber(userPhoneLoginRequest.getPhonenumber())){
+                user_id =
+                        staffInformationRepository.findStaffInformationByPhonenumber(userPhoneLoginRequest.getPhonenumber()).getId();
+            }
+            if(user_id == null){
+                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+            }
+            UsernameLoginRequest usernameLoginRequest =
+                    new UsernameLoginRequest();
+            usernameLoginRequest.setUsername(userRepository.findUserById(user_id).getUsername());
+            usernameLoginRequest.setPassword(userPhoneLoginRequest.getPassword());
+            return authenticate(usernameLoginRequest);
+        } catch (Exception e){
+            log.info(e);
+            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+        }
+    }
+    public AuthenticationResponse userEmailLogin(UserEmailLoginRequest emailLoginRequest){
+        try{
+            Integer user_id = null;
+            if(customerInformationRepository.existsCustomerInformationByEmail(emailLoginRequest.getEmail())){
+                user_id =
+                        customerInformationRepository.findCustomerInformationByEmail(emailLoginRequest.getEmail()).getId();
+            }
+            else if(staffInformationRepository.existsStaffInformationByEmail(emailLoginRequest.getEmail())){
+                user_id =
+                        staffInformationRepository.findStaffInformationByEmail(emailLoginRequest.getEmail()).getId();
+            }
+            if(user_id == null){
+                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+            }
+            UsernameLoginRequest usernameLoginRequest =
+                    new UsernameLoginRequest();
+            usernameLoginRequest.setUsername(userRepository.findUserById(user_id).getUsername());
+            usernameLoginRequest.setPassword(emailLoginRequest.getPassword());
+            return authenticate(usernameLoginRequest);
+        }catch (Exception e){
+            log.info(e);
+            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+        }
+    }
     public String GenerateToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
@@ -76,7 +125,7 @@ public class AuthenticationService {
                 .issuer("com.authentication")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                        Instant.now().plus(3, ChronoUnit.HOURS).toEpochMilli()))
                 .claim("scope",CreateScope(user))
                 .build();
         Payload   payload   = new Payload(jwtClaimsSet.toJSONObject());

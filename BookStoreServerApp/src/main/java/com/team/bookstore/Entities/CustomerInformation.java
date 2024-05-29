@@ -26,7 +26,6 @@ public class CustomerInformation extends Auditable{
     String phonenumber;
     String address;
     byte[] avatar;
-    boolean isvip;
     @JsonManagedReference("customer")
     @OneToMany(mappedBy = "customer_information",cascade = CascadeType.REMOVE)
     Set<Customer_Book> customer_book = new HashSet<>();

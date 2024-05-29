@@ -13,4 +13,9 @@ public interface CustomerInformationRepository extends JpaRepository<CustomerInf
     List<CustomerInformation> findAll(Specification<CustomerInformation> spec);
     CustomerInformation findCustomerInformationById(int id);
     Boolean existsCustomerInformationById(int id);
+    CustomerInformation findCustomerInformationByPhonenumber(String phoneNumber);
+
+    CustomerInformation findCustomerInformationByEmail(String email);
+    boolean existsCustomerInformationByPhonenumber(String phoneNumber);
+    boolean existsCustomerInformationByEmail(String email);
 }
