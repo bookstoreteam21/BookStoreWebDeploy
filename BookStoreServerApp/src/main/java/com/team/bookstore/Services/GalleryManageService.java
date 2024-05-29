@@ -7,6 +7,7 @@ import com.team.bookstore.Exceptions.ApplicationException;
 import com.team.bookstore.Mappers.GalleryManageMapper;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.GalleryManageRepository;
+import com.team.bookstore.Utilities.ImageUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,7 +51,9 @@ public class GalleryManageService {
     public GalleryManageResponse addGallery(MultipartFile image,
                                             GalleryManage galleryManage){
         try{
-            galleryManage.setThumbnail(image.getBytes());
+            byte[] compressedImage =
+                    ImageUtils.compressImage(image.getBytes(),0.2f);
+            galleryManage.setThumbnail(compressedImage);
             return galleryManageMapper.toGalleryManageResponse(galleryManageRepository.save(galleryManage));
         }catch(Exception e){
             log.info(e);
@@ -61,7 +64,9 @@ public class GalleryManageService {
     public GalleryManageResponse updateGallery(int id, MultipartFile image,
                                                GalleryManage galleryManage){
         try{
-            galleryManage.setThumbnail(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            galleryManage.setThumbnail(compressImage);
             if(!galleryManageRepository.existsById(id)){
                 throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
             }

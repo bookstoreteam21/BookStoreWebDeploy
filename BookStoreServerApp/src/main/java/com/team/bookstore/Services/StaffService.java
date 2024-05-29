@@ -12,6 +12,7 @@ import com.team.bookstore.Repositories.RoleRepository;
 import com.team.bookstore.Repositories.StaffInformationRepository;
 import com.team.bookstore.Repositories.UserRepository;
 import com.team.bookstore.Repositories.User_RoleRepository;
+import com.team.bookstore.Utilities.ImageUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -65,7 +66,9 @@ public class StaffService {
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
-            staffInformation.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            staffInformation.setAvatar(compressImage);
             if(!userRepository.existsById(id)){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
@@ -104,7 +107,9 @@ public class StaffService {
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
-            staffInformation.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            staffInformation.setAvatar(compressImage);
             if(!userRepository.existsById(staffInformation.getId()) && staffInformationRepository.existsStaffInformationById(staffInformation.getId())){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }

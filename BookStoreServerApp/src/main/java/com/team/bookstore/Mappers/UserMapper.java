@@ -61,7 +61,6 @@ public interface UserMapper {
     @Mapping(target = "user",ignore = true)
     @Mapping(target = "feedback",ignore = true)
     @Mapping(target = "avatar",ignore = true)
-    @Mapping(target = "isvip",ignore = true)
     CustomerInformation toCustomerInformation(CustomerInformationRequest customerInformationRequest);
     CustomerInformationResponse toCustomerInformationResponse(CustomerInformation customerInformation);
     @Mapping(target = "avatar",ignore = true)

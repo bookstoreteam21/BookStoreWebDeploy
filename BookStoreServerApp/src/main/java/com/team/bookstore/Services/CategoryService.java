@@ -5,6 +5,7 @@ import com.team.bookstore.Enums.ErrorCodes;
 import com.team.bookstore.Exceptions.ApplicationException;
 import com.team.bookstore.Mappers.CategoryMapper;
 import com.team.bookstore.Repositories.CategoryRepository;
+import com.team.bookstore.Utilities.ImageUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,7 +47,9 @@ public class CategoryService {
     public CategoryResponse createCategory(MultipartFile image,
                                            Category category){
         try{
-            category.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            category.setAvatar(compressImage);
             return categoryMapper.toCategoryResponse(categoryRepository.save(category));
         }catch(Exception e){
             log.info(e);
@@ -57,7 +60,9 @@ public class CategoryService {
     public CategoryResponse updateCategory(int id,MultipartFile image,
                                            Category category){
         try{
-            category.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            category.setAvatar(compressImage);
             if(!categoryRepository.existsById(id)){
                 throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
             }

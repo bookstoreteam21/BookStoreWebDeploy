@@ -13,6 +13,7 @@ import com.team.bookstore.Repositories.CustomerInformationRepository;
 import com.team.bookstore.Repositories.RoleRepository;
 import com.team.bookstore.Repositories.UserRepository;
 import com.team.bookstore.Repositories.User_RoleRepository;
+import com.team.bookstore.Utilities.ImageUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -90,7 +91,9 @@ public class CustomerService {
                                                                  MultipartFile image,
             CustomerInformation customerInformation){
         try{
-            customerInformation.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            customerInformation.setAvatar(compressImage);
             if(!userRepository.existsById(id)){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
@@ -111,7 +114,9 @@ public class CustomerService {
                                                                  MultipartFile image,
                                                                  CustomerInformation customerInformation){
         try{
-            customerInformation.setAvatar(image.getBytes());
+            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                    0.2f);
+            customerInformation.setAvatar(compressImage);
             if(!userRepository.existsById(customerInformation.getId()) && customerInformationRepository.existsCustomerInformationById(customerInformation.getId())){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }

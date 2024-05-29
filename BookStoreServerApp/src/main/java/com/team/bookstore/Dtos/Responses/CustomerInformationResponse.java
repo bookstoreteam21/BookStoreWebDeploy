@@ -22,7 +22,6 @@ public class CustomerInformationResponse {
     String phonenumber;
     String address;
     byte[] avatar;
-    boolean isvip;
     Date createAt;
     Date updateAt;
     String createBy;
