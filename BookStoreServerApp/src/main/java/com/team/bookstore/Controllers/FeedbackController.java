@@ -17,6 +17,7 @@ public class FeedbackController {
     FeedbackService feedbackService;
     @Autowired
     FeedbackMapper feedbackMapper;
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllFeedbacks(){
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(feedbackService.getAllFeedbacks()).build());
@@ -26,6 +27,7 @@ public class FeedbackController {
     public ResponseEntity<APIResponse<?>> findFeedbacksBy(@RequestParam String keyword){
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(feedbackService.findFeedBacksBy(keyword)).build());
     }
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/add")
     public ResponseEntity<APIResponse<?>> createAFeedback(@RequestBody FeedBackRequest feedBackRequest){
         FeedbackResponse result =

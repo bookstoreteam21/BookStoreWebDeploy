@@ -4,6 +4,7 @@ import com.sun.source.tree.CaseTree;
 import com.team.bookstore.Dtos.Requests.BookRequest;
 import com.team.bookstore.Dtos.Responses.BookResponse;
 import com.team.bookstore.Dtos.Responses.CategoryResponse;
+import com.team.bookstore.Dtos.Responses.FeedbackResponse;
 import com.team.bookstore.Entities.*;
 import jdk.jfr.Name;
 import lombok.extern.log4j.Log4j2;
@@ -11,7 +12,9 @@ import org.hibernate.boot.jaxb.hbm.internal.CacheAccessTypeConverter;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface BookMapper {
@@ -90,7 +93,27 @@ public interface BookMapper {
     @Mapping(target = "createAt",ignore = true)
     Book toBook(Book Other);
     @Mapping(target = "authors",source = "book_author",qualifiedByName = "toAuthor")
+    @Mapping(target = "feedback",source = "feedback",qualifiedByName =
+            "toFeedbackResponse")
     BookResponse toBookResponse(Book book);
+    @Named("toFeedbackResponse")
+    default List<FeedbackResponse> toFeedbackResponse(Set<Feedback> feedbacks){
+        List<FeedbackResponse> feedbackResponses = new ArrayList<>();
+        feedbacks.forEach(feedback -> {
+            FeedbackResponse feedbackResponse = new FeedbackResponse();
+            feedbackResponse.setFullname(feedback.getCustomer_information().getFullname());
+            feedbackResponse.setAvatar(feedback.getCustomer_information().getAvatar());
+            feedbackResponse.setFeedback_comment(feedback.getFeedback_comment());
+            feedbackResponse.setId(feedback.getId());
+            feedbackResponse.setRating(feedback.getRating());
+            feedbackResponse.setCreateAt(feedback.getCreateAt());
+            feedbackResponse.setUpdateAt(feedback.getUpdateAt());
+            feedbackResponse.setCreateBy(feedback.getCreateBy());
+            feedbackResponse.setUpdateBy(feedbackResponse.getUpdateBy());
+            feedbackResponses.add(feedbackResponse);
+        });
+        return feedbackResponses;
+    }
     @Named("toAuthor")
     default Set<Author> toAuthor(Set<Book_Author> book_author){
         Set<Author> authors=new HashSet<>();

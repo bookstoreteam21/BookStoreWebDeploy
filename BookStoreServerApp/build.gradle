@@ -48,5 +48,4 @@ dependencies {
     //thymleaf
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '3.2.5'
 
-
 }

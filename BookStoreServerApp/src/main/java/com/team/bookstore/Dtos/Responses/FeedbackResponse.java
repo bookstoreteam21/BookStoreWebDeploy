@@ -20,7 +20,6 @@ public class FeedbackResponse {
     int rating;
     String fullname;
     byte[] avatar;
-    Book book;
     Date createAt;
     Date updateAt;
     String createBy;

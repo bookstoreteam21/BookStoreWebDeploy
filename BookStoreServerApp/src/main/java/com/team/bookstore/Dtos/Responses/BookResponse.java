@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -37,5 +38,6 @@ public class BookResponse {
     Publisher publisher;
     Language language;
     Set<GalleryManage> galleryManage;
-    Provider provider;
+    Provider               provider;
+    List<FeedbackResponse> feedback;
 }

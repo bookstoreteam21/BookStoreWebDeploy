@@ -55,7 +55,7 @@ public class FeedbackService {
             throw new ApplicationException(ErrorCodes.NOT_FOUND);
         }
     }
-
+    @Secured("ROLE_CUSTOMER")
     public FeedbackResponse createFeedback(Feedback feedback) {
         try {
             Authentication authentication =
