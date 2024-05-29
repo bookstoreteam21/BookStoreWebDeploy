@@ -25,6 +25,8 @@ public class SecurityConfig{
     JWTHS256Decoder jwths256Decoder;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    CorsConfig config;
     public static String[] PublicEndpoints = {"auth/**","author/all","author" +
             "/find","book/all","book/find","category/all","category/find",
             "customer/register","feedback/all","gallery/all","gallery/find",
@@ -51,6 +53,7 @@ public class SecurityConfig{
                         .requestMatchers("/message/loadchat").authenticated()
                         .anyRequest().permitAll()
                 )
+                .cors(c->c.configurationSource(config.corsFilter()))
                 //.sessionManagement(sess -> sess.sessionCreationPolicy
                 // (SessionCreationPolicy.ALWAYS)
                         //.invalidSessionUrl("/v1/login?expired")
