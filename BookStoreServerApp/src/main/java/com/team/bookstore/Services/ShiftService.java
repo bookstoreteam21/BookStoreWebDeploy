@@ -104,27 +104,31 @@ public class ShiftService {
     public ShiftResponse updateShift(int id, Shift shift){
         try{
             if(!shiftRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.SHIFT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             shift.setId(id);
             return shiftMapper.toShiftResponse(shiftRepository.save(shift));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.SHIFT.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
     public ShiftResponse deleteShift(int id){
         try{
             if(!shiftRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.SHIFT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Shift existShift = shiftRepository.findShiftById(id);
             shiftRepository.delete(existShift);
             return shiftMapper.toShiftResponse(existShift);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.SHIFT.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 

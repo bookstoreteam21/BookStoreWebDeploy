@@ -12,5 +12,6 @@ public interface ShiftRepository extends JpaRepository<Shift,Integer> {
     Shift findShiftById(int id);
     Boolean existsById(int id);
     List<Shift> findAll(Specification<Shift> spec);
+    boolean existsShiftById(int id);
 }
 

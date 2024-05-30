@@ -118,7 +118,6 @@ public class PaymentService {
                         ErrorCodes.NOT_EXIST);
             }
             Order order = orderRepository.findOrderById(order_id);
-            int payment_id =order.getId();
             String vnp_Version = VNPAYConfig.vnp_Version;
             String vnp_Command = VNPAYConfig.vnp_Command;
             String orderType = VNPAYConfig.orderType;

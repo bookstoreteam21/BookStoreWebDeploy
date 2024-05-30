@@ -3,6 +3,8 @@ package com.team.bookstore.Services;
 import com.team.bookstore.Dtos.Responses.ShiftResponse;
 import com.team.bookstore.Dtos.Responses.Staff_ShiftResponse;
 import com.team.bookstore.Entities.ComposeKey.StaffShiftKey;
+import com.team.bookstore.Entities.Shift;
+import com.team.bookstore.Entities.StaffInformation;
 import com.team.bookstore.Entities.Staff_Shift;
 import com.team.bookstore.Enums.ErrorCodes;
 import com.team.bookstore.Enums.Object;
@@ -66,6 +68,18 @@ public class Staff_ShiftService {
                         ErrorCodes.NOT_EXIST);
 
             }
+            if(!staffInformationRepository.existsStaffInformationById(staff_id)){
+                throw new ObjectException(Object.STAFFINF.getName() + staff_id,ErrorCodes.NOT_EXIST);
+            }
+            StaffInformation staffInformation =
+                    staffInformationRepository.findStaffInformationById(staff_id);
+            if(!shiftRepository.existsShiftById(shift_id)){
+                throw new ObjectException(Object.SHIFT.getName() + shift_id,
+                        ErrorCodes.NOT_EXIST);
+            }
+            Shift shift = shiftRepository.findShiftById(shift_id);
+            staffShift.setStaff_information(staffInformation);
+            staffShift.setShift(shift);
             staffShift.setHasWorkThisShift(false);
             return staffShiftMapper.toStaff_ShiftResponse(staffShiftRepository.save(staffShift));
         } catch(Exception e){

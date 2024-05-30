@@ -107,12 +107,9 @@ public class BookService {
                     userRepository.findUsersByUsername(username).getId();
             Specification<Customer_Book> spec =
                     CreateCustomerBookByCustomerIDSpec(customer_id);
-            log.info("here");
             List<Book> boughtBooksForID =
                     customerBookRepository.findAll(spec).stream().map(customerBook -> {
                         try{
-                            log.info("id: ");
-                            log.info(bookRepository.findBookById(customerBook.getId().getBook_id()));
                             return bookRepository.findBookById(customerBook.getId().getBook_id());
                         } catch (Exception e){
                             log.info(e);

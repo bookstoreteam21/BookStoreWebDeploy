@@ -56,7 +56,7 @@ public class ProviderService {
         }catch(Exception e){
             log.info(e);
             throw new ObjectException(provider.getProvidername(),
-                    ErrorCodes.NOT_EXIST);
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -87,7 +87,7 @@ public class ProviderService {
             return providerMapper.toProviderResponse(existProvider);
         }catch(Exception e){
             log.info(e);
-            throw new ObjectException(Object.ORDER.getName(),
+            throw new ObjectException(Object.PROVIDER.getName(),
                     ErrorCodes.CANNOT_DELETE);
         }
     }

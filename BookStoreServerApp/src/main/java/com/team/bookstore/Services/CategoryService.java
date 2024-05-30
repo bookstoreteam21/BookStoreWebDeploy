@@ -68,7 +68,7 @@ public class CategoryService {
             category.setAvatar(compressImage);
             if(!categoryRepository.existsById(id)){
                 throw new ObjectException(category.getName(),
-                        ErrorCodes.OBJECT_NOT_EXIST);
+                        ErrorCodes.NOT_EXIST);
             }
             category.setId(id);
             return categoryMapper.toCategoryResponse(categoryRepository.save(category));

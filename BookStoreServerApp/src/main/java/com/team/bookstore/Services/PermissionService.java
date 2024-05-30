@@ -35,7 +35,7 @@ public class PermissionService {
             return permissionMapper.toPermissionResponse(permissionRepository.save(permission));
         }catch(Exception e){
             throw new ObjectException(permission.getPermissionname(),
-                    ErrorCodes.NOT_EXIST);
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")

@@ -73,7 +73,7 @@ public class RoleService {
         }catch (Exception e){
             log.info(e);
             throw new ObjectException(role.getRolename(),
-                    ErrorCodes.NOT_EXIST);
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -110,24 +110,10 @@ public class RoleService {
         }catch (Exception e){
             log.info(e);
             throw new ObjectException(rolename,
-                    ErrorCodes.NOT_EXIST);
-        }
-    }
-    /*
-    public RoleResponse createRole(RoleRequest roleRequest){
-        try{
-            if(roleRepository.existsRoleByRoleName(roleRequest.getRolename())){
-                throw new ApplicationException(ErrorCodes.ROLE_HAVE_BEEN_EXIST);
-            }
-            roleRepository.save(roleMapper.toRole(roleRequest));
-
-        }
-        catch(Exception e){
-            throw new ApplicationException(ErrorCodes.UN_CATEGORIED);
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 
-     */
 
 
 }

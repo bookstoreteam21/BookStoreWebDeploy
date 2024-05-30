@@ -218,7 +218,7 @@ public class AuthenticationService {
             invalidatedTokenRepository.save(invalidatedToken);
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.IS_EXPIRED);
+            throw new ApplicationException(ErrorCodes.EXPIRED);
         }
     }
 }

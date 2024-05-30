@@ -46,7 +46,7 @@ public class FeedbackService {
         }catch (Exception e){
             log.info(e);
             throw new ObjectException(Object.FEEDBACK.getName(),
-                    ErrorCodes.NOT_FOUND);
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<FeedbackResponse> findFeedBacksBy(String keyword){
@@ -55,7 +55,7 @@ public class FeedbackService {
             return feedbackRepository.findAll(spec).stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ObjectException(keyword,ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_CUSTOMER")

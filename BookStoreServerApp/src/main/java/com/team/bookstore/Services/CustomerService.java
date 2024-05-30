@@ -101,8 +101,7 @@ public class CustomerService {
                         ErrorCodes.NOT_EXIST);
             }
             customerInformation.setId(id);
-            CustomerInformation savedCustomerInformation =
-                    customerInformationRepository.save(customerInformation);
+
             if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
                 throw new ObjectException(customerInformation.getEmail(),
                         ErrorCodes.HAS_BEEN_EXIST);
@@ -110,6 +109,8 @@ public class CustomerService {
             if(customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
                 throw new ObjectException(customerInformation.getPhonenumber(),ErrorCodes.HAS_BEEN_EXIST);
             }
+            CustomerInformation savedCustomerInformation =
+                    customerInformationRepository.save(customerInformation);
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
         } catch(Exception e){
@@ -150,7 +151,7 @@ public class CustomerService {
         } catch(Exception e){
             log.info(e);
             throw new ObjectException(Object.CUSTOMERINF.getName(),
-                    ErrorCodes.NOT_FOUND);
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_STAFF")

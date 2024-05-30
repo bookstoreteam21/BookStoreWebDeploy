@@ -85,9 +85,8 @@ public class OrderService {
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!customerInformationRepository.existsCustomerInformationById(customer_id)){
-                log.info("customer");
                 throw new ObjectException(Object.CUSTOMERINF.getName(),
-                        ErrorCodes.CANNOT_CREATE);
+                        ErrorCodes.NOT_EXIST);
             }
             order.setCustomerId(customer_id);
             Order savedOrder = Create_Order_Detail_Relation_And_Save(order);
@@ -221,13 +220,16 @@ public class OrderService {
         } catch(Exception e){
             log.info(e);
             throw new ObjectException(Object.ORDER.getName(),
-                    ErrorCodes.CANNOT_UPDATE);
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
     public OrderResponse cancelOrder(int id){
         try{
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null){
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+            }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!orderRepository.existsById(id)){

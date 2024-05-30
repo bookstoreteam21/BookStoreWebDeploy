@@ -76,7 +76,6 @@ public class MessageService {
             message.setSender(sender);
             message.setReceiver(receiver);
             message.setMessage_status(0);
-            log.info(message.getSender().getUsername());
             return messageMapper.toMessageResponse(messageRepository.save(message));
         } catch (Exception e){
             log.info(e);
@@ -115,9 +114,6 @@ public class MessageService {
     List<Message> findMessageOfSender(int sender_id){
         try{
             Specification<Message> spec = CreateMessageSenderSpec(sender_id);
-            messageRepository.findAll(spec).forEach(message -> {
-                log.info("Receiver:" + message.getReceiver().getId());
-            });
             return new ArrayList<>(messageRepository.findAll(spec));
         } catch (Exception e){
             log.info(e);
@@ -150,9 +146,6 @@ public class MessageService {
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             Set<Integer> receiver_ids =
                     getReceiverIDs(findMessageOfSender(sender_id));
-            receiver_ids.forEach(receiver_id->{
-                log.info("receiver_id:" + receiver_id);
-            });
             Set<List<MessageResponse>> allMyChats = new HashSet<>();
             receiver_ids.forEach(receiver_id->{
                 allMyChats.add(findMessageByPairUsers(sender_id,
