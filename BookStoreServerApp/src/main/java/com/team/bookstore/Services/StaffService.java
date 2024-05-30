@@ -6,7 +6,9 @@ import com.team.bookstore.Entities.StaffInformation;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Entities.User_Role;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.UserMapper;
 import com.team.bookstore.Repositories.RoleRepository;
 import com.team.bookstore.Repositories.StaffInformationRepository;
@@ -47,7 +49,8 @@ public class StaffService {
     public UserResponse staffRegister(User user){
         try {
             if(userRepository.existsByUsername(user.getUsername())){
-                throw new ApplicationException(ErrorCodes.USER_HAS_BEEN_EXIST);
+                throw new ObjectException(user.getUsername(),
+                        ErrorCodes.HAS_BEEN_EXIST);
             }
             String decodePassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(decodePassword);
@@ -58,7 +61,7 @@ public class StaffService {
             return userMapper.toUserResponse(userRepository.save(user));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.REGISTER_DENIED);
+            throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -70,18 +73,25 @@ public class StaffService {
                     0.2f);
             staffInformation.setAvatar(compressImage);
             if(!userRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             staffInformation.setId(id);
-            StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
-            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())|| staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())){
+                throw new ObjectException(staffInformation.getEmail(),
+                        ErrorCodes.HAS_BEEN_EXIST);
             }
+            if(staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
+                throw new ObjectException(staffInformation.getPhonenumber(),
+                        ErrorCodes.HAS_BEEN_EXIST);
+            }
+            StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
             return userMapper.toStaffInformationResponse(savedStaffInformation);
 
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.REGISTER_DENIED);
+            throw new ObjectException(Object.STAFFINF.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public StaffInformationResponse getMyInfo(){
@@ -89,17 +99,19 @@ public class StaffService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.NOT_FOUND);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             if(!userRepository.existsByUsername(authentication.getName())){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             int staff_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             return userMapper.toStaffInformationResponse(staffInformationRepository.findStaffInformationById(staff_id));
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MY_INF.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -114,14 +126,20 @@ public class StaffService {
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
             staffInformation.setId(id);
-            StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
-            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())|| staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())){
+                throw new ObjectException(staffInformation.getEmail(),
+                        ErrorCodes.HAS_BEEN_EXIST);
             }
+            if(staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
+                throw new ObjectException(staffInformation.getPhonenumber(),
+                        ErrorCodes.HAS_BEEN_EXIST);
+            }
+            StaffInformation savedStaffInformation = staffInformationRepository.save(staffInformation);
             return userMapper.toStaffInformationResponse(savedStaffInformation);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.STAFFINF.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -130,7 +148,8 @@ public class StaffService {
             return staffInformationRepository.findAll().stream().map(userMapper::toStaffInformationResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.STAFFINF.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -141,7 +160,8 @@ public class StaffService {
             return staffInformationRepository.findAll(spec).stream().map(userMapper::toStaffInformationResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+            throw new ObjectException(Object.STAFFINF.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
 }

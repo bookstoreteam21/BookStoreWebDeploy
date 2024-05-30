@@ -6,7 +6,9 @@ import com.team.bookstore.Entities.Book;
 import com.team.bookstore.Entities.CustomerInformation;
 import com.team.bookstore.Entities.Feedback;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.FeedbackMapper;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.CustomerInformationRepository;
@@ -43,7 +45,8 @@ public class FeedbackService {
             return feedbackRepository.findAll().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.FEEDBACK.getName(),
+                    ErrorCodes.NOT_FOUND);
         }
     }
     public List<FeedbackResponse> findFeedBacksBy(String keyword){
@@ -52,7 +55,7 @@ public class FeedbackService {
             return feedbackRepository.findAll(spec).stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,ErrorCodes.NOT_FOUND);
         }
     }
     @Secured("ROLE_CUSTOMER")
@@ -61,10 +64,10 @@ public class FeedbackService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             if(!bookRepository.existsById(feedback.getBook().getId()) || !userRepository.existsByUsername(authentication.getName())){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.BOOK.getName(),ErrorCodes.NOT_EXIST);
             }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
@@ -75,20 +78,23 @@ public class FeedbackService {
             feedback.setBook(book);
             return feedbackMapper.toFeedbackResponse(feedbackRepository.save(feedback));
         } catch (Exception e) {
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.FEEDBACK.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
     public FeedbackResponse deleteFeedback(int id){
         try{
             if(!feedbackRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.FEEDBACK.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Feedback exsitFeedback = feedbackRepository.findFeedbackById(id);
             feedbackRepository.delete(exsitFeedback);
             return feedbackMapper.toFeedbackResponse(exsitFeedback);
         }catch(Exception e){
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.FEEDBACK.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 }

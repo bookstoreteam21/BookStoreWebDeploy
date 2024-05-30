@@ -2,7 +2,9 @@ package com.team.bookstore.Services;
 import com.team.bookstore.Dtos.Responses.PermissionResponse;
 import com.team.bookstore.Entities.Permission;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.PermissionMapper;
 import com.team.bookstore.Repositories.PermissionRepository;
 import lombok.extern.log4j.Log4j2;
@@ -27,11 +29,13 @@ public class PermissionService {
     public PermissionResponse createPermission(Permission permission){
         try{
             if(permissionRepository.existsPermissionByPermissionname(permission.getPermissionname())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+                throw new ObjectException(permission.getPermissionname(),
+                        ErrorCodes.NOT_EXIST);
             }
             return permissionMapper.toPermissionResponse(permissionRepository.save(permission));
         }catch(Exception e){
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(permission.getPermissionname(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -40,7 +44,8 @@ public class PermissionService {
             return permissionRepository.findAll().stream().map(permissionMapper::toPermissionResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PERMISSION.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -51,14 +56,16 @@ public class PermissionService {
             return permissionRepository.findAll(spec).stream().map(permissionMapper::toPermissionResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
     public PermissionResponse deletePermission(String permissionname){
         try{
             if(!permissionRepository.existsPermissionByPermissionname(permissionname)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(permissionname,
+                        ErrorCodes.NOT_EXIST);
             }
             Permission existPermission =
                     permissionRepository.findPermissionByPermissionname(permissionname);
@@ -66,7 +73,8 @@ public class PermissionService {
             return permissionMapper.toPermissionResponse(existPermission);
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(permissionname,
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 }

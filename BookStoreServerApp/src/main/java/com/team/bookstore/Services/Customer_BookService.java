@@ -5,7 +5,9 @@ import com.team.bookstore.Entities.CustomerInformation;
 import com.team.bookstore.Entities.Customer_Book;
 import com.team.bookstore.Entities.Order_Detail;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.CustomerInformationRepository;
 import com.team.bookstore.Repositories.Customer_BookRepository;
@@ -37,42 +39,21 @@ public class Customer_BookService {
     @Autowired
     UserRepository userRepository;
 
-    public int updateReadingProcess(int book_id,int process){
-        try{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
-            }
-            if(!bookRepository.existsById(book_id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
-            }
-            int customerId =
-                    userRepository.findUsersByUsername(authentication.getName()).getId();
-            CustomerBookKey customerBookKey = new CustomerBookKey();
-            customerBookKey.setBook_id(book_id);
-            customerBookKey.setBook_id(book_id);
-            Customer_Book customer_book =
-                    customerBookRepository.findCustomer_BookById(customerBookKey);
-            customer_book.setReadingprocess(process);
-            return customerBookRepository.save(customer_book).getReadingprocess();
-        }catch(Exception e){
-            log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
-        }
-    }
     @Secured("ROLE_ADMIN")
     public void updateCustomer_Book(int customer_id,
                                     Set<Order_Detail> order_details){
         try{
             if(!customerInformationRepository.existsById(customer_id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.CUSTOMERINF.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             CustomerInformation customer =
                     customerInformationRepository.findCustomerInformationById(customer_id);
             Set<Customer_Book> customer_books = new HashSet<>();
             order_details.forEach(order_detail -> {
                 if(!bookRepository.existsById(order_detail.getBook().getId())){
-                    throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                    throw new ObjectException(Object.BOOK.getName(),
+                            ErrorCodes.NOT_EXIST);
                 }
                 Customer_Book customer_book = new Customer_Book();
                 customer_book.setBook(order_detail.getBook());
@@ -83,7 +64,7 @@ public class Customer_BookService {
             });
             customerBookRepository.saveAll(customer_books);
         } catch (Exception e){
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.MY_BOOK.getName(),ErrorCodes.CANNOT_UPDATE);
         }
     }
 }

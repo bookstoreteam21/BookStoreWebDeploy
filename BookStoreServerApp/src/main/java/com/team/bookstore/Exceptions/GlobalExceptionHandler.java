@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<APIResponse> exceptionRunTimeHandler(RuntimeException runtimeException){
+    ResponseEntity<APIResponse<?>> exceptionRunTimeHandler(RuntimeException runtimeException){
         log.info("Error: "+ runtimeException);
         ErrorCodes err = ErrorCodes.UN_CATEGORIED;
         return ResponseEntity.badRequest().body(APIResponse.builder()
@@ -20,13 +20,33 @@ public class GlobalExceptionHandler {
                 .build());
     }
     @ExceptionHandler(value = ApplicationException.class)
-    ResponseEntity<APIResponse> applicationExceptionHandler(ApplicationException applicationException){
+    ResponseEntity<APIResponse<?>> applicationExceptionHandler(ApplicationException applicationException){
         log.info("Error: " + applicationException);
         return ResponseEntity.badRequest().body(
             APIResponse.builder()
                     .code(applicationException.getErrorCodes().getCode())
                     .message(applicationException.getMessage())
                     .build()
+        );
+    }
+    @ExceptionHandler(value = ObjectException.class)
+    ResponseEntity<APIResponse<?>> objectExceptionHandler(ObjectException objectException){
+        log.info("Error: " + objectException);
+        return ResponseEntity.badRequest().body(
+                APIResponse.builder()
+                        .code(objectException.getErrorCodes().getCode())
+                        .message(objectException.getMessage())
+                        .build()
+        );
+    }
+    @ExceptionHandler(value = FieldException.class)
+    ResponseEntity<APIResponse<?>> fieldExceptionHandler(FieldException fieldException){
+        log.info("Error: " + fieldException);
+        return ResponseEntity.badRequest().body(
+                APIResponse.builder()
+                        .code(fieldException.getErrorCodes().getCode())
+                        .message(fieldException.getMessage())
+                        .build()
         );
     }
 }

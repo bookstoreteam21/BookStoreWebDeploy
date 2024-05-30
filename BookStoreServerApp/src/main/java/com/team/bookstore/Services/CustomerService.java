@@ -7,7 +7,9 @@ import com.team.bookstore.Entities.CustomerInformation;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Entities.User_Role;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.UserMapper;
 import com.team.bookstore.Repositories.CustomerInformationRepository;
 import com.team.bookstore.Repositories.RoleRepository;
@@ -55,7 +57,7 @@ public class CustomerService {
     public UserResponse customerRegister(User user){
         try {
             if(userRepository.existsByUsername(user.getUsername())){
-                throw new ApplicationException(ErrorCodes.USER_HAS_BEEN_EXIST);
+                throw new ObjectException(user.getUsername(),ErrorCodes.HAS_BEEN_EXIST);
             }
             String decodePassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(decodePassword);
@@ -66,7 +68,7 @@ public class CustomerService {
             return userMapper.toUserResponse(userRepository.save(user));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.REGISTER_DENIED);
+            throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
         }
     }
     public CustomerInformationResponse getMyInfo(){
@@ -74,17 +76,17 @@ public class CustomerService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.NOT_FOUND);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             if(!userRepository.existsByUsername(authentication.getName())){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),ErrorCodes.NOT_EXIST);
             }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             return userMapper.toCustomerInformationResponse(customerInformationRepository.findCustomerInformationById(customer_id));
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MY_INF.getName(),ErrorCodes.NOT_EXIST);
         }
     }
     public CustomerInformationResponse createCustomerInformation(int id,
@@ -95,19 +97,24 @@ public class CustomerService {
                     0.2f);
             customerInformation.setAvatar(compressImage);
             if(!userRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             customerInformation.setId(id);
             CustomerInformation savedCustomerInformation =
                     customerInformationRepository.save(customerInformation);
-            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())|| customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
+                throw new ObjectException(customerInformation.getEmail(),
+                        ErrorCodes.HAS_BEEN_EXIST);
+            }
+            if(customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
+                throw new ObjectException(customerInformation.getPhonenumber(),ErrorCodes.HAS_BEEN_EXIST);
             }
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.REGISTER_DENIED);
+            throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
         }
     }
     public CustomerInformationResponse updateCustomerInformation(int id,
@@ -121,14 +128,19 @@ public class CustomerService {
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
             customerInformation.setId(id);
-            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())|| customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
+                throw new ObjectException(customerInformation.getEmail(),
+                        ErrorCodes.HAS_BEEN_EXIST);
+            }
+            if(customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
+                throw new ObjectException(customerInformation.getPhonenumber(),ErrorCodes.HAS_BEEN_EXIST);
             }
             CustomerInformation savedCustomerInformation = customerInformationRepository.save(customerInformation);
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(customerInformation.getFullname(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -137,7 +149,8 @@ public class CustomerService {
             return customerInformationRepository.findAll().stream().map(userMapper::toCustomerInformationResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.CUSTOMERINF.getName(),
+                    ErrorCodes.NOT_FOUND);
         }
     }
     @Secured("ROLE_STAFF")
@@ -148,23 +161,7 @@ public class CustomerService {
             return customerInformationRepository.findAll(spec).stream().map(userMapper::toCustomerInformationResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
-        }
-    }
-    @Secured("ROLE_ADMIN")
-    public String verifyVip(boolean paymentStatus){
-        try{
-            Authentication authentication =
-                    SecurityContextHolder.getContext().getAuthentication();
-            if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
-            }
-            CustomerInformation verifyCustomer =
-                    customerInformationRepository.findCustomerInformationById(userRepository.findUsersByUsername(authentication.getName()).getId());
-            return "Verify Successfully";
-        }catch (Exception e){
-            log.info(e);
-            throw  new ApplicationException(ErrorCodes.CANNOT_VERIFY);
+            throw new ObjectException(keyword,ErrorCodes.NOT_EXIST);
         }
     }
 }

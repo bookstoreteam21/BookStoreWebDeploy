@@ -6,7 +6,9 @@ import com.team.bookstore.Dtos.Responses.ProviderResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Entities.ComposeKey.BookAuthorKey;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.BookMapper;
 import com.team.bookstore.Repositories.*;
 import jakarta.transaction.Transactional;
@@ -65,7 +67,8 @@ public class BookService {
                 GalleryManage existGalleryManage =
                         galleryManageRepository.findGalleryManageById(galleryManage.getId());
                 if(existGalleryManage==null){
-                    throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                    throw new ObjectException(Object.GALLERY.getName(),
+                            ErrorCodes.NOT_EXIST);
                 }
                 return existGalleryManage;
             }).collect(Collectors.toSet());
@@ -74,21 +77,22 @@ public class BookService {
             return bookMapper.toBookResponse(savedBook);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(book.getTitle(),ErrorCodes.CANNOT_CREATE);
         }
     }
     public List<BookResponse> getAllBook(){
         try {
             return bookRepository.findBooksByAvailable(true).stream().map(bookMapper::toBookResponse).collect(Collectors.toList());
         }catch (Exception e){
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.BOOK.getName(),ErrorCodes.NOT_EXIST);
         }
     }
     public List<BookResponse> getRemovedBooks(){
         try{
             return bookRepository.findBooksByAvailable(false).stream().map(bookMapper::toBookResponse).collect(Collectors.toList());
         }catch (Exception e){
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.DELETED_BOOK.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<BookResponse> getMyBooks(){
@@ -96,7 +100,7 @@ public class BookService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             String username = authentication.getName();
             int customer_id =
@@ -112,14 +116,15 @@ public class BookService {
                             return bookRepository.findBookById(customerBook.getId().getBook_id());
                         } catch (Exception e){
                             log.info(e);
-                            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+                            throw new ObjectException(Object.MY_BOOK.getName(),
+                                    ErrorCodes.NOT_EXIST);
                         }
                     }).toList();
             return boughtBooksForID.stream().map(bookMapper::toBookResponse).collect(Collectors.toList());
 
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MY_BOOK.getName(),ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -128,8 +133,7 @@ public class BookService {
         try{
         Book updateBook = bookRepository.findBookById(id);
         if (updateBook == null) {
-            throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST
-            );
+            throw new ObjectException(Object.BOOK.getName(),ErrorCodes.NOT_EXIST);
         }
             updateBook = bookMapper.toBook(updateContent);
             updateBook.setCategory(categoryRepository.findCategoryById(updateBook.getCategory().getId()));
@@ -142,7 +146,8 @@ public class BookService {
             return bookMapper.toBookResponse(savedBook);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.BOOK.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -150,13 +155,14 @@ public class BookService {
     public BookResponse deleteBook(int id){
         Book deleteBook = bookRepository.findBookById(id);
         if(deleteBook == null){
-            throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+            throw new ObjectException(Object.BOOK.getName(),ErrorCodes.OBJECT_NOT_EXIST);
         }
         try {
             bookRepository.delete(deleteBook);
             return bookMapper.toBookResponse(deleteBook);
         }catch(Exception e){
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(deleteBook.getTitle(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
     public List<BookResponse> findBooks(String keyword){
@@ -166,7 +172,7 @@ public class BookService {
             return bookRepository.findAll(spec).stream().map(bookMapper::toBookResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,ErrorCodes.NOT_EXIST);
         }
     }
     public Book Create_Book_Author_Relation_And_Save(Book book,
@@ -176,7 +182,8 @@ public class BookService {
                 .map(book_author -> {
                         Author author = authorRepository.findAuthorById(book_author.getAuthor().getId());
                         if (author == null) {
-                            throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                            throw new ObjectException(Object.AUTHOR.getName(),
+                                    ErrorCodes.NOT_EXIST);
                         }
                         Book_Author new_book_author = new Book_Author();
                         new_book_author.setBook(book);

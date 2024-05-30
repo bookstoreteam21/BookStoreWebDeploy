@@ -5,7 +5,9 @@ import com.team.bookstore.Dtos.Responses.RevenueMonthResponse;
 import com.team.bookstore.Dtos.Responses.RevenueYearResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.RevenueMapper;
 import com.team.bookstore.Repositories.*;
 import lombok.extern.log4j.Log4j2;
@@ -66,7 +68,8 @@ public class RevenueService {
             return revenueDayRepository.findAll().stream().map(revenueMapper::toRevenueDayResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.REVENUEDAY.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<RevenueMonthResponse> getAllRevenueMonth(){
@@ -74,7 +77,8 @@ public class RevenueService {
             return revenueMonthRepository.findAll().stream().map(revenueMapper::toRevenueMonthResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.REVENUEMONTH.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<RevenueYearResponse> getAllRevenueYear(){
@@ -82,7 +86,8 @@ public class RevenueService {
             return revenueYearRepository.findAll().stream().map(revenueMapper::toRevenueYearResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.REVENUEYEAR.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -109,7 +114,8 @@ public class RevenueService {
             return revenueMapper.toRevenueDayResponse(revenueDayRepository.save(revenueDay));
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_CATEGORIED);
+            throw new ObjectException(Object.REVENUEDAY.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public RevenueMonthResponse generateMonthRevenue(String date){
@@ -130,7 +136,8 @@ public class RevenueService {
             return revenueMapper.toRevenueMonthResponse(revenueMonthRepository.save(revenueMonth));
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_CATEGORIED);
+            throw new ObjectException(Object.REVENUEMONTH.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public RevenueYearResponse generateYearRevenue(String date){
@@ -152,7 +159,8 @@ public class RevenueService {
             return revenueMapper.toRevenueYearResponse(revenueYearRepository.save(revenueYear));
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_CATEGORIED);
+            throw new ObjectException(Object.REVENUEYEAR.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
 }

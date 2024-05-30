@@ -3,7 +3,9 @@ import com.team.bookstore.Dtos.Responses.AuthenticationResponse;
 import com.team.bookstore.Dtos.Responses.UserResponse;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.UserMapper;
 import com.team.bookstore.Repositories.UserRepository;
 import lombok.AccessLevel;
@@ -36,14 +38,12 @@ public class UserService {
     @Secured("ROLE_ADMIN")
     public List<UserResponse> getAllUser(){
         try {
-            Authentication authentication =
-                    SecurityContextHolder.getContext().getAuthentication();
-            log.info("authentication: " + authentication.getName());
             return userRepository.findAll().stream().map(userMapper::toUserResponse).collect(Collectors.toList());
         }catch(Exception e){
 
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.USER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public UserResponse updatePassword(String password){
@@ -51,12 +51,13 @@ public class UserService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int user_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!userRepository.existsById(user_id)){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             User existUser =
                     userRepository.findUserById(user_id);
@@ -64,7 +65,8 @@ public class UserService {
             return userMapper.toUserResponse(userRepository.save(existUser));
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.PASSWORD.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -75,7 +77,8 @@ public class UserService {
             return userRepository.findAll(spec).stream().map(userMapper::toUserResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -83,13 +86,15 @@ public class UserService {
         try{
             User existUser = userRepository.findUserById(id);
             if(existUser == null){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(Object.USER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             userRepository.delete(existUser);
             return userMapper.toUserResponse(existUser);
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.USER.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 }

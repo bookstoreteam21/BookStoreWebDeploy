@@ -10,7 +10,9 @@ import com.team.bookstore.Dtos.Responses.IntrospectResponse;
 import com.team.bookstore.Entities.InvalidatedToken;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Repositories.CustomerInformationRepository;
 import com.team.bookstore.Repositories.InvalidatedTokenRepository;
 import com.team.bookstore.Repositories.StaffInformationRepository;
@@ -55,13 +57,13 @@ public class AuthenticationService {
         String      username  = request.getUsername();
         String     password  = request.getPassword();
         if (!userRepository.existsByUsername(username)) {
-            throw new UsernameNotFoundException("User " + username + " is not exist!");
+            throw new ObjectException(username,ErrorCodes.NOT_EXIST);
         }
         User user = userRepository.findUsersByUsername(username);
         boolean isAuthenticate = passwordEncoder.matches(password,
                 user.getPassword());
         if (!isAuthenticate) {
-            throw new AuthenticationException("Wrong password!");
+            throw new ApplicationException(ErrorCodes.WRONG_PASSWORD);
         }
         user.setToken(GenerateToken(user));
         userRepository.save(user);
@@ -82,7 +84,8 @@ public class AuthenticationService {
                         staffInformationRepository.findStaffInformationByPhonenumber(userPhoneLoginRequest.getPhonenumber()).getId();
             }
             if(user_id == null){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(userPhoneLoginRequest.getPhonenumber(),
+                        ErrorCodes.NOT_EXIST);
             }
             UsernameLoginRequest usernameLoginRequest =
                     new UsernameLoginRequest();
@@ -91,7 +94,7 @@ public class AuthenticationService {
             return authenticate(usernameLoginRequest);
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+            throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
         }
     }
     public AuthenticationResponse userEmailLogin(UserEmailLoginRequest emailLoginRequest){
@@ -106,7 +109,8 @@ public class AuthenticationService {
                         staffInformationRepository.findStaffInformationByEmail(emailLoginRequest.getEmail()).getId();
             }
             if(user_id == null){
-                throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
+                throw new ObjectException(emailLoginRequest.getEmail(),
+                        ErrorCodes.NOT_EXIST);
             }
             UsernameLoginRequest usernameLoginRequest =
                     new UsernameLoginRequest();
@@ -115,7 +119,7 @@ public class AuthenticationService {
             return authenticate(usernameLoginRequest);
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+            throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
         }
     }
     public String GenerateToken(User user) {
@@ -154,7 +158,7 @@ public class AuthenticationService {
         if (!(verified && expiryTime.after(new Date()))) throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
 
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
-            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+            throw new ObjectException(Object.TOKEN.getName(),ErrorCodes.EXPIRED);
 
         return signedJWT;
     }
@@ -168,7 +172,7 @@ public class AuthenticationService {
         } catch (Exception e) {
             isAuthenticated = false;
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+            throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
         }
         return IntrospectResponse.builder().isAuthenticated(isAuthenticated).build();
     }
@@ -197,7 +201,7 @@ public class AuthenticationService {
 
         String username = signedJWT.getJWTClaimsSet().getSubject();
         if(!userRepository.existsByUsername(username)){
-            throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+            throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
         }
         User user = userRepository.findUsersByUsername(username);
         String token = GenerateToken(user);

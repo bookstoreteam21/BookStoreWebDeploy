@@ -5,7 +5,9 @@ import com.team.bookstore.Dtos.Responses.PublisherResponse;
 import com.team.bookstore.Entities.Provider;
 import com.team.bookstore.Entities.Publisher;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.ProviderMapper;
 import com.team.bookstore.Repositories.ProviderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +35,8 @@ public class ProviderService {
             ).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PROVIDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<ProviderResponse> findProvidersBy(String keyword){
@@ -42,7 +45,8 @@ public class ProviderService {
             return providerRepository.findAll(spec).stream().map(providerMapper::toProviderResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PROVIDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -51,27 +55,31 @@ public class ProviderService {
             return providerMapper.toProviderResponse(providerRepository.save(provider));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(provider.getProvidername(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
     public ProviderResponse updateProvider(int id,Provider provider){
         try{
             if(!providerRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.PROVIDER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             provider.setId(id);
             return providerMapper.toProviderResponse(providerRepository.save(provider));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.PROVIDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
     public ProviderResponse deleteProvider(int id){
         try{
             if(!providerRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.PROVIDER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Provider existProvider =
                     providerRepository.findProviderById(id);
@@ -79,7 +87,8 @@ public class ProviderService {
             return providerMapper.toProviderResponse(existProvider);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 }

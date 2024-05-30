@@ -4,7 +4,9 @@ import com.team.bookstore.Dtos.Requests.AuthorRequest;
 import com.team.bookstore.Dtos.Responses.AuthorResponse;
 import com.team.bookstore.Entities.Author;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.AuthorMapper;
 import com.team.bookstore.Repositories.AuthorRepository;
 import lombok.extern.log4j.Log4j2;
@@ -27,22 +29,29 @@ public class AuthorService {
     AuthorMapper authorMapper;
     @Secured("ROLE_ADMIN")
     public AuthorResponse createAuthor(AuthorRequest authorRequest){
-        Author savedAuthor =
-                authorRepository.save(authorMapper.toAuthor(authorRequest));
-        return authorMapper.toAuthorResponse(savedAuthor);
+        try {
+            Author savedAuthor =
+                    authorRepository.save(authorMapper.toAuthor(authorRequest));
+            return authorMapper.toAuthorResponse(savedAuthor);
+
+        }catch(Exception e) {
+            log.info(e);
+            throw new ObjectException(authorRequest.getAuthor_name(),
+                    ErrorCodes.CANNOT_CREATE);
+        }
     }
     @Secured("ROLE_ADMIN")
     public AuthorResponse updateAuthor(int id, Author author){
         try{
             if(!authorRepository.existsAuthorById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(author.getAuthor_name(),ErrorCodes.NOT_EXIST);
             }
             author.setId(id);
             Author savedAuthor = authorRepository.save(author);
             return authorMapper.toAuthorResponse(savedAuthor);
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_AUTHORISED);
+            throw new ObjectException(author.getAuthor_name(),ErrorCodes.CANNOT_UPDATE);
         }
     }
     public List<AuthorResponse> getAllAuthor(){
@@ -51,7 +60,7 @@ public class AuthorService {
                     .collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.AUTHOR.getName(),ErrorCodes.NOT_FOUND);
         }
     }
     public List<AuthorResponse> findAuthorBy(String keyword){
@@ -60,21 +69,22 @@ public class AuthorService {
             return authorRepository.findAll(spec).stream().map(authorMapper::toAuthorResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+            throw new ObjectException(keyword,ErrorCodes.NOT_FOUND);
         }
     }
     @Secured("ROLE_ADMIN")
     public AuthorResponse deleteAuthor(int id){
         try{
             if(!authorRepository.existsAuthorById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.AUTHOR.getName(),ErrorCodes.NOT_EXIST);
             }
             Author existAuthor = authorRepository.findAuthorById(id);
             authorRepository.delete(existAuthor);
             return authorMapper.toAuthorResponse(existAuthor);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_AUTHORISED);
+            throw new ObjectException(Object.AUTHOR.getName()
+                    ,ErrorCodes.CANNOT_DELETE);
         }
 
     }

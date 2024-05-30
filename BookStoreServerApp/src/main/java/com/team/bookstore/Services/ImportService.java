@@ -4,7 +4,9 @@ import com.team.bookstore.Dtos.Requests.ImportRequest;
 import com.team.bookstore.Dtos.Responses.ImportResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.ImportMapper;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.ImportRepository;
@@ -43,7 +45,8 @@ public class ImportService {
             return importRepository.findAll().stream().map(importMapper::toImportResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.IMPORT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -53,7 +56,8 @@ public class ImportService {
             return importRepository.findAll(spec).stream().map(importMapper::toImportResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
 
@@ -62,12 +66,13 @@ public class ImportService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             return importRepository.findImportsByCreateBy(authentication.getName()).stream().map(importMapper::toImportResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MY_IMPORT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public ImportResponse createImport(Import _import){
@@ -77,17 +82,20 @@ public class ImportService {
             return importMapper.toImportResponse(savedImport);
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.IMPORT.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public ImportResponse updateImport(int id,Import _import){
         try{
             if(!importRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.IMPORT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Import existImport = importRepository.findImportById(id);
             if(existImport.isImport_status()){
-                throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+                throw new ObjectException(Object.IMPORT.getName(),
+                        ErrorCodes.CANNOT_UPDATE);
             }
             _import.setId(id);
             BeanUtils.copyProperties(existImport,_import);
@@ -96,20 +104,23 @@ public class ImportService {
             return importMapper.toImportResponse(updatedImport);
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.IMPORT.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     public ImportResponse deleteImport(int id){
         try{
             if(!importRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.IMPORT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Import existImport = importRepository.findImportById(id);
             importRepository.delete(existImport);
             return importMapper.toImportResponse(existImport);
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.IMPORT.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
     AtomicInteger Cal_Total_Import(Set<Import_Detail> import_details){
@@ -126,7 +137,8 @@ public class ImportService {
                     Book book =
                             bookRepository.findBookById(import_detail.getBook().getId());
                     if (book == null) {
-                        throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                        throw new ObjectException(Object.BOOK.getName(),
+                                ErrorCodes.NOT_EXIST);
                     }
                     Import_Detail new_import_detail = new Import_Detail();
                     new_import_detail.setBook(book);
@@ -169,13 +181,15 @@ public class ImportService {
     public ImportResponse verifyImport(int id){
         try{
             if(!importRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.IMPORT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Import existImport = importRepository.findImportById(id);
              existImport.setImport_status(true);
              existImport.getImport_detail().forEach(import_detail -> {
                  if(!bookRepository.existsById(import_detail.getBook().getId())){
-                     throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                     throw new ObjectException(Object.BOOK.getName(),
+                             ErrorCodes.NOT_EXIST);
                  }
                  Book existBook =
                          bookRepository.findBookById(import_detail.getBook().getId());
@@ -186,7 +200,8 @@ public class ImportService {
              return importMapper.toImportResponse(importRepository.save(existImport));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_VERIFY);
+            throw new ObjectException(Object.IMPORT.getName(),
+                    ErrorCodes.CANNOT_VERIFY);
         }
     }
 }

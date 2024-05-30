@@ -3,7 +3,9 @@ package com.team.bookstore.Services;
 import com.team.bookstore.Dtos.Responses.OrderResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.OrderMapper;
 import com.team.bookstore.Repositories.*;
 import jakarta.transaction.Transactional;
@@ -43,7 +45,8 @@ public class OrderService {
         try{
         return orderRepository.findAll().stream().map(orderMapper::toOrderResponse).collect(Collectors.toList());
         } catch (Exception e){
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<OrderResponse> findAllOrdersBy(String keyword){
@@ -51,7 +54,8 @@ public class OrderService {
             Specification<Order> spec = CreateOrderKeywordSpec(keyword);
             return orderRepository.findAll(spec).stream().map(orderMapper::toOrderResponse).collect(Collectors.toList());
         } catch (Exception e){
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<OrderResponse> getMyOrder(){
@@ -59,14 +63,15 @@ public class OrderService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             return orderRepository.findOrdersByCustomerId(customer_id).stream().map(orderMapper::toOrderResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MY_ORDER.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Transactional
@@ -75,20 +80,22 @@ public class OrderService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication==null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!customerInformationRepository.existsCustomerInformationById(customer_id)){
                 log.info("customer");
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.CUSTOMERINF.getName(),
+                        ErrorCodes.CANNOT_CREATE);
             }
             order.setCustomerId(customer_id);
             Order savedOrder = Create_Order_Detail_Relation_And_Save(order);
             return orderMapper.toOrderResponse(savedOrder);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public AtomicInteger Cal_Total_Discount(Set<Order_Detail> order_detail){
@@ -108,17 +115,20 @@ public class OrderService {
     public OrderResponse updateOrder(int id, Order order){
          try{
              if(!orderRepository.existsById(id)){
-                 throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                 throw new ObjectException(Object.ORDER.getName() + " "+id,
+                         ErrorCodes.NOT_EXIST);
              }
              if(order.getStatus_trans()!=0){
-                 throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+                 throw new ObjectException(Object.ORDER.getName(),
+                         ErrorCodes.CANNOT_UPDATE);
              }
              order.setId(id);
              Order updatedOrder = Create_Order_Detail_Relation_And_Save(order);
              return orderMapper.toOrderResponse(updatedOrder);
          } catch(Exception e){
              log.info(e);
-             throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+             throw new ObjectException(Object.ORDER.getName() +" " +id,
+                     ErrorCodes.CANNOT_UPDATE);
          }
     }
 
@@ -126,7 +136,8 @@ public class OrderService {
         //0:unverified,1:accept,2:prepair,3:Delivery,4:Payment!
         try{
             if(!orderRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.ORDER.getName() + " " + id,
+                        ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
             if(existOrder.getStatus_trans() == 1){
@@ -136,7 +147,8 @@ public class OrderService {
                 existOrder.setStatus_trans(1);
                 existOrder.getOrder_detail().forEach(order_detail -> {
                     if(!bookRepository.existsById(order_detail.getBook().getId())){
-                        throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                        throw new ObjectException(Object.BOOK.getName(),
+                                ErrorCodes.NOT_EXIST);
                     }
                     Book existBook =
                             bookRepository.findBookById(order_detail.getBook().getId());
@@ -151,9 +163,10 @@ public class OrderService {
                 existOrder.setStatus_trans(status);
                 return orderMapper.toOrderResponse(orderRepository.save(existOrder));
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_VERIFY);
+            throw new ObjectException(Object.ORDER.getName() + " " + id,
+                    ErrorCodes.CANNOT_VERIFY);
         }
     }
     public Order Create_Order_Detail_Relation_And_Save(Order order) {
@@ -162,7 +175,8 @@ public class OrderService {
                     Book book =
                             bookRepository.findBookById(order_detail.getBook().getId());
                     if (book == null) {
-                        throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                        throw new ObjectException(Object.BOOK.getName(),
+                                ErrorCodes.NOT_EXIST);
                     }
                     Order_Detail new_order_detail = new Order_Detail();
                     int quantity = order_detail.getQuantity();
@@ -198,14 +212,16 @@ public class OrderService {
     public OrderResponse deleteOrder(int id){
         try{
             if(!orderRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.ORDER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
             orderRepository.delete(existOrder);
             return orderMapper.toOrderResponse(existOrder);
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     public OrderResponse cancelOrder(int id){
@@ -215,26 +231,30 @@ public class OrderService {
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!orderRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.ORDER.getName() + " " + id,
+                        ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
             if(existOrder.getCustomerId()!=customer_id){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             if(existOrder.getStatus_trans()==0){
                return deleteOrder(id);
             } else {
-                throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+                throw new ObjectException(Object.ORDER.getName() + " " + id,
+                        ErrorCodes.CANCLE);
             }
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.ORDER.getName() + " "+ id,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public OrderResponse updateOrderStatusTrans(int id, int status){
         try{
             if(!orderRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.ORDER.getName() + " " + id,
+                        ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
             if(status<= existOrder.getStatus_trans()){
@@ -244,8 +264,10 @@ public class OrderService {
             return orderMapper.toOrderResponse(orderRepository.save(existOrder));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.ORDER.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
 
 }
+

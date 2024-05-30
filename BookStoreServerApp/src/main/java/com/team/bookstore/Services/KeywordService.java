@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.team.bookstore.Dtos.Responses.KeywordResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.KeywordMapper;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.KeywordRepository;
@@ -37,7 +39,8 @@ public class KeywordService {
             return keywordRepository.findAll().stream().map(keywordMapper::toKeywordResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.KEYWORD.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<KeywordResponse> findKeywordsBy(String keyword){
@@ -46,7 +49,8 @@ public class KeywordService {
             return keywordRepository.findAll(spec).stream().map(keywordMapper::toKeywordResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public KeywordResponse createKeyword(Keyword keyword){
@@ -56,13 +60,15 @@ public class KeywordService {
             return keywordMapper.toKeywordResponse(savedKeyword);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(keyword,
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public KeywordResponse updateKeyword(int id,Keyword keyword){
         try{
             if(!keywordRepository.existsByid(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(keyword.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             keyword.setId(id);
             Keyword savedKeyword =
@@ -70,21 +76,24 @@ public class KeywordService {
             return keywordMapper.toKeywordResponse(savedKeyword);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(keyword.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
     public KeywordResponse deleteKeyword(int id){
         try{
             if(!keywordRepository.existsByid(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.KEYWORD.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Keyword existKeyword = keywordRepository.findKeywordById(id);
             keywordRepository.delete(existKeyword);
             return keywordMapper.toKeywordResponse(existKeyword);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.KEYWORD.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 
@@ -94,7 +103,8 @@ public class KeywordService {
                     Book book =
                             bookRepository.findBookById(book_keyword.getBook().getId());
                     if (book == null) {
-                        throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                        throw new ObjectException(Object.BOOK.getName(),
+                                ErrorCodes.NOT_EXIST);
                     }
                     Book_Keyword new_book_keyword = new Book_Keyword();
                     new_book_keyword.setKeyword(keyword);

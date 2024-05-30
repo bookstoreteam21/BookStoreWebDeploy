@@ -4,7 +4,9 @@ import com.team.bookstore.Dtos.Requests.RoleRequest;
 import com.team.bookstore.Dtos.Responses.RoleResponse;
 import com.team.bookstore.Entities.*;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.KeywordMapperImpl;
 import com.team.bookstore.Mappers.RoleMapper;
 import com.team.bookstore.Repositories.PermissionRepository;
@@ -44,7 +46,8 @@ public class RoleService {
        }
        catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.UN_CATEGORIED);
+           throw new ObjectException(Object.ROLE.getName(),
+                   ErrorCodes.NOT_EXIST);
        }
     }
     @Secured("ROLE_ADMIN")
@@ -54,20 +57,23 @@ public class RoleService {
             return roleRepository.findAll(spec).stream().map(roleMapper::toRoleResponse).collect(Collectors.toList());
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
     public RoleResponse createRole(Role role){
         try{
             if(roleRepository.existsRoleByRolename(role.getRolename())){
-                throw new ApplicationException(ErrorCodes.OBJECT_HAS_BEEN_EXISTING);
+                throw new ObjectException(role.getRolename(),
+                        ErrorCodes.HAS_BEEN_EXIST);
             }
             Create_Role_Permission_Relation_And_Save(role);
             return roleMapper.toRoleResponse(role);
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(role.getRolename(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -78,7 +84,8 @@ public class RoleService {
                     Permission permission =
                             permissionRepository.findPermissionByPermissionname(role_permission.getPermission().getPermissionname());
                     if (permission == null) {
-                        throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                        throw new ObjectException(Object.PERMISSION.getName(),
+                                ErrorCodes.NOT_EXIST);
                     }
                     Role_Permission new_role_permission = new Role_Permission();
                     new_role_permission.setRole(role);
@@ -94,14 +101,16 @@ public class RoleService {
     public RoleResponse deleteRole(String rolename){
         try{
             if(!roleRepository.existsRoleByRolename(rolename)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(rolename,
+                        ErrorCodes.NOT_EXIST);
             }
             Role existRole = roleRepository.findRoleByRolename(rolename);
             roleRepository.delete(existRole);
             return roleMapper.toRoleResponse(existRole);
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(rolename,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     /*

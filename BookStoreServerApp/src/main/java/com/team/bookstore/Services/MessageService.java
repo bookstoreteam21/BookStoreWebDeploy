@@ -4,7 +4,9 @@ import com.team.bookstore.Dtos.Responses.MessageResponse;
 import com.team.bookstore.Entities.Message;
 import com.team.bookstore.Entities.User;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.MessageMapper;
 import com.team.bookstore.Repositories.MessageRepository;
 import com.team.bookstore.Repositories.UserRepository;
@@ -39,7 +41,8 @@ public class MessageService {
             return messageRepository.findAll().stream().map(messageMapper::toMessageResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -49,7 +52,8 @@ public class MessageService {
             return messageRepository.findAll(spec).stream().map(messageMapper::toMessageResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public MessageResponse createMessage(Message message){
@@ -57,12 +61,13 @@ public class MessageService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null) {
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int sender_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             if(!userRepository.existsById(message.getReceiver().getId())){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.RECEIVER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             User sender =
                     userRepository.findUserById(sender_id);
@@ -75,21 +80,24 @@ public class MessageService {
             return messageMapper.toMessageResponse(messageRepository.save(message));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
     public MessageResponse deleteMessage(int id){
         try{
             if(!messageRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.MESSAGE.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Message existMessage = messageRepository.findMessageById(id);
             messageRepository.delete(existMessage);
             return messageMapper.toMessageResponse(existMessage);
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
     List<MessageResponse> findMessageByPairUsers(int user_id1,
@@ -100,7 +108,8 @@ public class MessageService {
             return messageRepository.findAll(spec).stream().map(messageMapper::toMessageResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     List<Message> findMessageOfSender(int sender_id){
@@ -112,7 +121,8 @@ public class MessageService {
             return new ArrayList<>(messageRepository.findAll(spec));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     Set<Integer> getReceiverIDs(List<Message> messageList){
@@ -125,7 +135,8 @@ public class MessageService {
         }
         catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public Set<List<MessageResponse>> loadMyChat(){
@@ -133,7 +144,7 @@ public class MessageService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int sender_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
@@ -150,7 +161,8 @@ public class MessageService {
             return allMyChats;
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.MESSAGE.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
 }

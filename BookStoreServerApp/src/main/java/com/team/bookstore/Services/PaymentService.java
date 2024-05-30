@@ -5,7 +5,9 @@ import com.team.bookstore.Dtos.Responses.PaymentResponse;
 import com.team.bookstore.Entities.Order;
 import com.team.bookstore.Entities.Payment;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.PaymentMapper;
 import com.team.bookstore.Repositories.OrderRepository;
 import com.team.bookstore.Repositories.PaymentRepository;
@@ -44,7 +46,8 @@ public class PaymentService {
             return paymentRepository.findAll().stream().map(paymentMapper:: toPaymentResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<PaymentResponse> findPaymentsBy(String keyword){
@@ -53,7 +56,8 @@ public class PaymentService {
             return paymentRepository.findAll(spec).stream().map(paymentMapper:: toPaymentResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<PaymentResponse> getMyPayments(){
@@ -61,7 +65,7 @@ public class PaymentService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null){
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int customer_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
@@ -69,7 +73,8 @@ public class PaymentService {
 
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public PaymentResponse createPayment(Payment payment){
@@ -77,7 +82,8 @@ public class PaymentService {
             return paymentMapper.toPaymentResponse(paymentRepository.save(payment));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     public PaymentResponse verifyPayment(String vnp_ref){
@@ -86,7 +92,8 @@ public class PaymentService {
             Payment existPayment =
                     paymentRepository.findPaymentByVnpaycode(vnp_refcode);
             if(existPayment == null){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.PAYMENT.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             if(existPayment.isPayment_status()){
                 return paymentMapper.toPaymentResponse(paymentRepository.save(existPayment));
@@ -96,31 +103,19 @@ public class PaymentService {
             return paymentMapper.toPaymentResponse(paymentRepository.save(existPayment));
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_VERIFY);
-        }
-    }
-    @Secured("ROLE_ADMIN")
-    public PaymentResponse deletePayment(int id)
-    {
-        try{
-            if(!paymentRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
-            }
-            Payment existPayment = paymentRepository.findPaymentById(id);
-            paymentRepository.delete(existPayment);
-            return paymentMapper.toPaymentResponse(existPayment);
-        } catch(Exception e){
-            log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.CANNOT_VERIFY);
         }
     }
     public PaymentResponse payForOrder(int order_id, short method){
         try{
             if(method<1 || method >3){
-                throw new ApplicationException(ErrorCodes.INVALID_OBJECT);
+                throw new ObjectException(Object.PAYMENTMETHOD + " " + method,
+                        ErrorCodes.NOT_EXIST);
             }
             if(!orderRepository.existsById(order_id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.ORDER.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Order order = orderRepository.findOrderById(order_id);
             int payment_id =order.getId();
@@ -208,7 +203,8 @@ public class PaymentService {
             payment.setMethod_payment(method);
             paymentRepository.save(payment);
             if(payment.isPayment_status()){
-                throw new ApplicationException(ErrorCodes.PURCHASED);
+                throw new ObjectException(Object.PAYMENT.getName(),
+                        ErrorCodes.PURCHASED);
             }
             PaymentResponse paymentResponse =
                     paymentMapper.toPaymentResponse(payment);
@@ -216,7 +212,8 @@ public class PaymentService {
             return paymentResponse;
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_VERIFY);
+            throw new ObjectException(Object.PAYMENT.getName(),
+                    ErrorCodes.CANNOT_PURCHASE);
         }
     }
 }

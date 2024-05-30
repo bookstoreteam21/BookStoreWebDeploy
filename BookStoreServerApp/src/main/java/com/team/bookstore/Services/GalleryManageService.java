@@ -3,7 +3,9 @@ package com.team.bookstore.Services;
 import com.team.bookstore.Dtos.Responses.GalleryManageResponse;
 import com.team.bookstore.Entities.GalleryManage;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.GalleryManageMapper;
 import com.team.bookstore.Repositories.BookRepository;
 import com.team.bookstore.Repositories.GalleryManageRepository;
@@ -34,7 +36,7 @@ public class GalleryManageService {
             return galleryManageRepository.findAll().stream().map(galleryManageMapper::toGalleryManageResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.NOT_EXIST);
         }
     }
     public List<GalleryManageResponse> findGalleriesBy(String keyword){
@@ -44,7 +46,7 @@ public class GalleryManageService {
             return galleryManageRepository.findAll(spec).stream().map(galleryManageMapper::toGalleryManageResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword, ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -57,7 +59,8 @@ public class GalleryManageService {
             return galleryManageMapper.toGalleryManageResponse(galleryManageRepository.save(galleryManage));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(Object.GALLERY.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -68,16 +71,17 @@ public class GalleryManageService {
                     0.2f);
             galleryManage.setThumbnail(compressImage);
             if(!galleryManageRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.NOT_EXIST);
             }
             if(!bookRepository.existsById(galleryManage.getBook().getId())){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.BOOK.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             galleryManage.setId(id);
             return galleryManageMapper.toGalleryManageResponse(galleryManageRepository.save(galleryManage));
         }catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.CANNOT_UPDATE);
         }
     }
 
@@ -85,7 +89,7 @@ public class GalleryManageService {
     public GalleryManageResponse deleteGallery(int id){
         try{
             if(!galleryManageRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.NOT_EXIST);
             }
             GalleryManage existGalleryManage =
                     galleryManageRepository.findGalleryManageById(id);
@@ -93,7 +97,7 @@ public class GalleryManageService {
             return galleryManageMapper.toGalleryManageResponse(existGalleryManage);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.NOT_EXIST);
         }
     }
 }

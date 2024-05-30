@@ -57,6 +57,8 @@ public class PaymentController {
         model.addAttribute("vnp_PayDate",request.getParameter("vnp_PayDate"));
         model.addAttribute("vnp_TransactionStatus",request.getParameter(
                 "vnp_TransactionStatus"));
+        ////
+
         return "vnpay_return";
     }
 }

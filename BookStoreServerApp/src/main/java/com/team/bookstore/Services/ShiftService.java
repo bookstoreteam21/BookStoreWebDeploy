@@ -5,7 +5,9 @@ import com.team.bookstore.Dtos.Responses.ShiftResponse;
 import com.team.bookstore.Entities.Shift;
 import com.team.bookstore.Entities.Staff_Shift;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.ShiftMapper;
 import com.team.bookstore.Repositories.ShiftRepository;
 import com.team.bookstore.Repositories.Staff_ShiftRepository;
@@ -44,7 +46,8 @@ public class ShiftService {
 
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.SHIFT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
 
@@ -55,7 +58,8 @@ public class ShiftService {
             return shiftRepository.findAll(spec).stream().map(shiftMapper::toShiftResponse).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,
+                    ErrorCodes.NOT_EXIST);
         }
     }
     public List<ShiftResponse> getMyShifts(){
@@ -63,7 +67,7 @@ public class ShiftService {
             Authentication authentication =
                     SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null) {
-                throw new ApplicationException(ErrorCodes.UN_AUTHENTICATED);
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
             }
             int staff_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
@@ -75,14 +79,16 @@ public class ShiftService {
                             return shiftRepository.findShiftById(staffShift.getId().getShift_id());
                         } catch(Exception e){
                             log.info(e);
-                            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+                            throw new ObjectException(Object.SHIFT.getName(),
+                                    ErrorCodes.NOT_EXIST);
                         }
                     }).toList();
             return myShifts.stream().map(shiftMapper::toShiftResponse
             ).collect(Collectors.toList());
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.SHIFT.getName(),
+                    ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")

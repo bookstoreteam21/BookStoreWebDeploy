@@ -2,7 +2,9 @@ package com.team.bookstore.Services;
 import com.team.bookstore.Dtos.Responses.CategoryResponse;
 import com.team.bookstore.Entities.Category;
 import com.team.bookstore.Enums.ErrorCodes;
+import com.team.bookstore.Enums.Object;
 import com.team.bookstore.Exceptions.ApplicationException;
+import com.team.bookstore.Exceptions.ObjectException;
 import com.team.bookstore.Mappers.CategoryMapper;
 import com.team.bookstore.Repositories.CategoryRepository;
 import com.team.bookstore.Utilities.ImageUtils;
@@ -31,7 +33,7 @@ public class CategoryService {
             return categoryRepository.findAll().stream().map(categoryMapper::toCategoryResponse).collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(Object.AUTHOR.getName(),ErrorCodes.NOT_EXIST);
         }
     }
     public List<CategoryResponse> findCategoriesBy(String keyword){
@@ -40,7 +42,7 @@ public class CategoryService {
             return categoryRepository.findAll(spec).stream().map(categoryMapper::toCategoryResponse).collect(Collectors.toList());
         } catch (Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.NOT_FOUND);
+            throw new ObjectException(keyword,ErrorCodes.NOT_EXIST);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -53,7 +55,8 @@ public class CategoryService {
             return categoryMapper.toCategoryResponse(categoryRepository.save(category));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_CREATE);
+            throw new ObjectException(category.getName(),
+                    ErrorCodes.CANNOT_CREATE);
         }
     }
     @Secured("ROLE_ADMIN")
@@ -64,20 +67,23 @@ public class CategoryService {
                     0.2f);
             category.setAvatar(compressImage);
             if(!categoryRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(category.getName(),
+                        ErrorCodes.OBJECT_NOT_EXIST);
             }
             category.setId(id);
             return categoryMapper.toCategoryResponse(categoryRepository.save(category));
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_UPDATE);
+            throw new ObjectException(category.getName(),
+                    ErrorCodes.CANNOT_UPDATE);
         }
     }
     @Secured("ROLE_ADMIN")
     public CategoryResponse deleteCategory(int id){
         try{
             if(!categoryRepository.existsById(id)){
-                throw new ApplicationException(ErrorCodes.OBJECT_NOT_EXIST);
+                throw new ObjectException(Object.CATEGORY.getName(),
+                        ErrorCodes.NOT_EXIST);
             }
             Category existCategory =
                     categoryRepository.findCategoryById(id);
@@ -85,7 +91,8 @@ public class CategoryService {
             return categoryMapper.toCategoryResponse(existCategory);
         }catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.CANNOT_DELETE);
+            throw new ObjectException(Object.CATEGORY.getName(),
+                    ErrorCodes.CANNOT_DELETE);
         }
     }
 }
