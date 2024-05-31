@@ -23,11 +23,6 @@ public class MessageController {
     MessageService messageService;
     @Autowired
     MessageMapper  messageMapper;
-    @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public MessageResponse send(MessageRequest message) throws Exception {
-        return messageService.createMessage(messageMapper.toMessage(message));
-    }
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllMessages()
