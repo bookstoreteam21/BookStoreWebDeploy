@@ -9,7 +9,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.SimpleDateFormat;
 
 @RestController
 @RequestMapping("/message")
@@ -19,6 +23,11 @@ public class MessageController {
     MessageService messageService;
     @Autowired
     MessageMapper  messageMapper;
+    @MessageMapping("/chat")
+    @SendTo("/topic/messages")
+    public MessageResponse send(MessageRequest message) throws Exception {
+        return messageService.createMessage(messageMapper.toMessage(message));
+    }
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllMessages()

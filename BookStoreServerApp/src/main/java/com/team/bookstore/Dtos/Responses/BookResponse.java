@@ -34,7 +34,7 @@ public class BookResponse {
     Date updateAt;
     String createBy;
     String updateBy;
-    String category;
+    int catgory_id;
     Set<Author> authors;
     Publisher publisher;
     Language language;
