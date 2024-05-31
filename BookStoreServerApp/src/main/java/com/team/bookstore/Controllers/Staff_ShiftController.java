@@ -51,5 +51,9 @@ public class Staff_ShiftController {
         Staff_ShiftResponse result = staffShiftService.deleteStaff_Shift(id);
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
     }
+    @PatchMapping("/verify")
+    public ResponseEntity<APIResponse<?>> verifyForSchedule(@RequestParam int staff_id, @RequestParam int shift_id,@RequestParam boolean hasWork){
+        return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(staffShiftService.verifyAScheduleOfAStaff(staff_id,shift_id,hasWork)).build());
+    }
  }
 

@@ -9,6 +9,7 @@ import com.team.bookstore.Services.RevenueService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,5 +45,13 @@ public class RevenueController  {
     public ResponseEntity<APIResponse<?>> createYearRevenue(@PathVariable String date){
         RevenueYearResponse result = revenueService.generateYearRevenue(date);
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
+    }
+    @GetMapping("/days-of/{date}")
+    public ResponseEntity<APIResponse<?>> getAllRevenueDaysOf(@PathVariable String date){
+        return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(revenueService.findAllRevenueDayOfMonth(date)).build());
+    }
+    @GetMapping("/months-of/{date}")
+    public ResponseEntity<APIResponse<?>> getAllRevenueMonthsOf(@PathVariable String date){
+        return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(revenueService.findAllRevenueMonthOfYear(date)).build());
     }
 }

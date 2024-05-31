@@ -163,4 +163,22 @@ public class RevenueService {
                     ErrorCodes.CANNOT_CREATE);
         }
     }
+    public List<RevenueDayResponse> findAllRevenueDayOfMonth(String date){
+        try{
+            Specification<RevenueDay> spec = GenerateRevenueDaySpec(date);
+            return revenueDayRepository.findAll(spec).stream().map(revenueMapper::toRevenueDayResponse).collect(Collectors.toList());
+        }catch (Exception e){
+            log.info(e);
+            throw new ObjectException(Object.REVENUEDAY.getName() + " of "+ date,ErrorCodes.NOT_EXIST);
+        }
+    }
+    public List<RevenueMonthResponse> findAllRevenueMonthOfYear(String date){
+        try{
+            Specification<RevenueMonth> spec = GenerateRevenueMonthSpec(date);
+            return revenueMonthRepository.findAll(spec).stream().map(revenueMapper::toRevenueMonthResponse).collect(Collectors.toList());
+        }catch (Exception e){
+            log.info(e);
+            throw new ObjectException(Object.REVENUEMONTH.getName() + " of "+ date,ErrorCodes.NOT_EXIST);
+        }
+    }
 }

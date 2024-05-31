@@ -121,4 +121,25 @@ public class Staff_ShiftService {
                     ErrorCodes.CANNOT_DELETE);
         }
     }
+    @Secured("ROLE_ADMIN")
+    public Staff_ShiftResponse verifyAScheduleOfAStaff(int staff_id,
+                                                       int shift_id,
+                                                       boolean hasWork){
+        try{
+            StaffShiftKey staffShiftKey = new StaffShiftKey();
+            staffShiftKey.setShift_id(shift_id);
+            staffShiftKey.setStaff_id(staff_id);
+            if(!staffShiftRepository.existsById(staffShiftKey)){
+                throw new ObjectException(Object.SCHEDULE.getName() +  + staff_id +
+                        " "+ shift_id,ErrorCodes.NOT_EXIST);
+            }
+            Staff_Shift  existStaffShift =
+                    staffShiftRepository.findStaff_ShiftById(staffShiftKey);
+            existStaffShift.setHasWorkThisShift(hasWork);
+            return staffShiftMapper.toStaff_ShiftResponse(staffShiftRepository.save(existStaffShift));
+        }catch (Exception e){
+            throw new ObjectException(Object.SCHEDULE.getName() + staff_id +
+                    " "+ shift_id,ErrorCodes.CANNOT_VERIFY);
+        }
+    }
 }
