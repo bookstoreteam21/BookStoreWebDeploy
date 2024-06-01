@@ -19,16 +19,6 @@ public class GlobalExceptionHandler {
                 .message(err.getMessage())
                 .build());
     }
-    @ExceptionHandler(value = ApplicationException.class)
-    ResponseEntity<APIResponse<?>> applicationExceptionHandler(ApplicationException applicationException){
-        log.info("Error: " + applicationException);
-        return ResponseEntity.badRequest().body(
-            APIResponse.builder()
-                    .code(applicationException.getErrorCodes().getCode())
-                    .message(applicationException.getMessage())
-                    .build()
-        );
-    }
     @ExceptionHandler(value = ObjectException.class)
     ResponseEntity<APIResponse<?>> objectExceptionHandler(ObjectException objectException){
         log.info("Error: " + objectException);
@@ -39,6 +29,17 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+    @ExceptionHandler(value = ApplicationException.class)
+    ResponseEntity<APIResponse<?>> applicationExceptionHandler(ApplicationException applicationException){
+        log.info("Error: " + applicationException);
+        return ResponseEntity.badRequest().body(
+            APIResponse.builder()
+                    .code(applicationException.getErrorCodes().getCode())
+                    .message(applicationException.getMessage())
+                    .build()
+        );
+    }
+
     @ExceptionHandler(value = FieldException.class)
     ResponseEntity<APIResponse<?>> fieldExceptionHandler(FieldException fieldException){
         log.info("Error: " + fieldException);

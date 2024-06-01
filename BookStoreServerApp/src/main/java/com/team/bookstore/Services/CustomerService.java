@@ -66,7 +66,11 @@ public class CustomerService {
             user_role.setRole(roleRepository.findRoleByRolename("CUSTOMER"));
             user.getUser_role().add(user_role);
             return userMapper.toUserResponse(userRepository.save(user));
-        } catch (Exception e){
+        }catch (ObjectException e){
+            log.info(e);
+            throw e;
+        }
+        catch (Exception e){
             log.info(e);
             throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
         }

@@ -24,6 +24,7 @@ public class OrderResponse {
     int status_trans;
     int total_price;
     String address;
+    String phonenumber;
     int method_payment;
     Date createAt;
     Date updateAt;

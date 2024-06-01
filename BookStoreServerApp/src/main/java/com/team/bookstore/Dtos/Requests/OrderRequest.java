@@ -23,6 +23,8 @@ public class OrderRequest {
     String order_note;
     @NotNull
     String address;
+    @NotNull
+    String phonenumber;
     Set<OrderDetailRequest> order_details;
 }
 

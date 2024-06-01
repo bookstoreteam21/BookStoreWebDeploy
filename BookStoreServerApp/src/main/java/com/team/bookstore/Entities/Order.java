@@ -29,6 +29,7 @@ public class Order extends  Auditable{
     int status_trans;
     int total_price;
     String address;
+    String phonenumber;
     @JsonManagedReference("order")
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     Set<Order_Detail> order_detail = new HashSet<>();
