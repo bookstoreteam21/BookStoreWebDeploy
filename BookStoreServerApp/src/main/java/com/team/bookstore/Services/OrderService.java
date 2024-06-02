@@ -199,8 +199,7 @@ public class OrderService {
         order.setTotal_price(total_price - total_discount);
         order.setStatus_trans(0);
         Payment payment = new Payment();
-        log.info(order.getPayment());
-        payment.setMethod_payment(order.getPayment().getMethod_payment());
+        payment.setMethod_payment(0);
         payment.setPayment_status(false);
         payment.setCustomerId(order.getCustomerId());
         payment.setOrder(order);
