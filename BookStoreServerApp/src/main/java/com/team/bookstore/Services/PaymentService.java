@@ -99,7 +99,7 @@ public class PaymentService {
                 return paymentMapper.toPaymentResponse(paymentRepository.save(existPayment));
             }
             existPayment.setPayment_status(true);
-            orderService.verifyOrder(existPayment.getOrder().getId(),1);
+            orderService.verifyOrder(existPayment.getOrder().getId(),4);
             return paymentMapper.toPaymentResponse(paymentRepository.save(existPayment));
         } catch (Exception e){
             log.info(e);
