@@ -84,6 +84,7 @@ public class BookService {
         try {
             return bookRepository.findBooksByAvailable(true).stream().map(bookMapper::toBookResponse).collect(Collectors.toList());
         }catch (Exception e){
+            log.info(e);
             throw new ObjectException(Object.BOOK.getName(),ErrorCodes.NOT_EXIST);
         }
     }

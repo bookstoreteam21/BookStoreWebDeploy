@@ -3,6 +3,7 @@ package com.team.bookstore.Controllers;
 import com.team.bookstore.Dtos.Requests.MessageRequest;
 import com.team.bookstore.Dtos.Responses.APIResponse;
 import com.team.bookstore.Dtos.Responses.MessageResponse;
+import com.team.bookstore.Entities.Message;
 import com.team.bookstore.Mappers.MessageMapper;
 import com.team.bookstore.Services.MessageService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +25,23 @@ public class MessageController {
     MessageService messageService;
     @Autowired
     MessageMapper  messageMapper;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @MessageMapping("/chat.sendMessage")
+    public void sendMessage(MessageRequest messageRequest) {
+        Message         message  = messageMapper.toMessage(messageRequest);
+        MessageResponse response = messageService.createMessage(message);
+        String destination = "/queue/" + message.getReceiver().getUsername();
+        messagingTemplate.convertAndSend(destination, response);
+    }
+
+    @MessageMapping("/chat.addUser")
+    public void addUser(MessageRequest messageRequest) {
+        String destination = "/topic/public";
+        messagingTemplate.convertAndSend(destination,
+                messageMapper.toMessage(messageRequest));
+    }
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllMessages()
