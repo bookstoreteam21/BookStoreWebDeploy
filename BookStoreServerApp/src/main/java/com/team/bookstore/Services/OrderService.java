@@ -139,7 +139,7 @@ public class OrderService {
                         ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
-            if(existOrder.getStatus_trans() == 4){
+            if(existOrder.getStatus_trans() == 4||existOrder.getStatus_trans()==5){
                 return orderMapper.toOrderResponse(existOrder);
             } else
             if(status ==4) {
@@ -154,7 +154,6 @@ public class OrderService {
                     int newQuantity =
                             existBook.getBookQuantity() - order_detail.getQuantity();
                     existBook.setBookQuantity(newQuantity);
-                    increaseReadingSession(existBook.getId());
                     bookRepository.save(existBook);
                 });
                 customerBookService.updateCustomer_Book(existOrder.getCustomerId(), existOrder.getOrder_detail());
@@ -264,10 +263,21 @@ public class OrderService {
                         ErrorCodes.NOT_EXIST);
             }
             Order existOrder = orderRepository.findOrderById(id);
+            if(status!=existOrder.getStatus_trans()+1){
+                return orderMapper.toOrderResponse(existOrder);
+            }
             if(status<= existOrder.getStatus_trans()){
                 return orderMapper.toOrderResponse(existOrder);
             }
+            if(existOrder.getStatus_trans()==5){
+                return orderMapper.toOrderResponse(existOrder);
+            }
             existOrder.setStatus_trans(status);
+            if(status==5){
+                existOrder.getOrder_detail().forEach(order_detail -> {
+                    increaseReadingSession(order_detail.getBook().getId());
+                });
+            }
             return orderMapper.toOrderResponse(orderRepository.save(existOrder));
         }catch(Exception e){
             log.info(e);
