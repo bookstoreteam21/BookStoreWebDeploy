@@ -21,6 +21,9 @@ import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ import javax.security.sasl.AuthenticationException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Date;
 import java.util.StringJoiner;
 
@@ -220,5 +224,22 @@ public class AuthenticationService {
             log.info(e);
             throw new ApplicationException(ErrorCodes.EXPIRED);
         }
+    }
+    public Authentication getAuthentication(String token) throws ParseException, JOSEException {
+        SignedJWT signedJWT = verifyToken(token, false);
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+
+        User user = userRepository.findUsersByUsername(username);
+        if (user == null) {
+            throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+        }
+
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword())
+                .authorities(Collections.emptyList())
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }

@@ -50,7 +50,8 @@ public class SecurityConfig{
                         .requestMatchers(CustomerEndpoints).hasAnyRole(Role.CUSTOMER.name(),Role.ADMIN.name())
                         .requestMatchers(StaffEndpoints).hasAnyRole(Role.STAFF.name(),Role.ADMIN.name())
                         .requestMatchers("/delete","/user").hasRole(Role.ADMIN.name())
-                        .requestMatchers("/message/loadchat").authenticated()
+                        .requestMatchers("/message/loadchat","/app/chat" +
+                                ".sendMessage","/message").authenticated()
                         .anyRequest().permitAll()
                 )
                 .cors(c->c.configurationSource(config.corsFilter()))

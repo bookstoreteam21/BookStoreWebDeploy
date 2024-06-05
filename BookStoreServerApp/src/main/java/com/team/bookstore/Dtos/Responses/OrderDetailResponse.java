@@ -16,4 +16,5 @@ public class OrderDetailResponse {
     int price;
     int discount;
     int total_price;
+    byte[] cover;
 }

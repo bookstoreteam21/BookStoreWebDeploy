@@ -65,6 +65,7 @@ public class MessageService {
             }
             int sender_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
+
             if(!userRepository.existsById(message.getReceiver().getId())){
                 throw new ObjectException(Object.RECEIVER.getName(),
                         ErrorCodes.NOT_EXIST);
@@ -121,11 +122,12 @@ public class MessageService {
                     ErrorCodes.NOT_EXIST);
         }
     }
-    Set<Integer> getReceiverIDs(List<Message> messageList){
+    Set<Integer> getContactIDs(List<Message> messageList){
         try{
             Set<Integer> receiver_ids = new HashSet<>();
             messageList.forEach(message -> {
                 receiver_ids.add(message.getReceiver().getId());
+                receiver_ids.add(message.getSender().getId());
             });
             return receiver_ids;
         }
@@ -145,11 +147,13 @@ public class MessageService {
             int sender_id =
                     userRepository.findUsersByUsername(authentication.getName()).getId();
             Set<Integer> receiver_ids =
-                    getReceiverIDs(findMessageOfSender(sender_id));
+                    getContactIDs(findMessageOfSender(sender_id));
             Set<List<MessageResponse>> allMyChats = new HashSet<>();
             receiver_ids.forEach(receiver_id->{
-                allMyChats.add(findMessageByPairUsers(sender_id,
-                        receiver_id));
+                if(sender_id!=receiver_id) {
+                    allMyChats.add(findMessageByPairUsers(sender_id,
+                            receiver_id));
+                }
             });
             return allMyChats;
         } catch (Exception e){

@@ -17,7 +17,11 @@ import java.util.Date;
 public class MessageResponse {
     int id;
     int sender_id;
+    String sender_name;
+    byte[] sender_avatar;
     int receiver_id;
+    String receiver_name;
+    byte[] receiver_avatar;
     String message_content;
     int message_status;
     Date createAt;

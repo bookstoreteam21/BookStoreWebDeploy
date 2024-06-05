@@ -1,14 +1,9 @@
 package com.team.bookstore.Entities;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,8 +32,8 @@ public class User extends Auditable{
     StaffInformation staff_information;
     @JsonManagedReference("sender")
     @OneToMany(mappedBy = "sender",fetch = FetchType.EAGER)
-    Set<Message> send_messages;
+    Set<Message>  send_messages;
     @JsonManagedReference("receiver")
     @OneToMany(mappedBy = "receiver",fetch = FetchType.EAGER)
-    Set<Message> receive_messages;
+    Set<Message>  receive_messages;
 }

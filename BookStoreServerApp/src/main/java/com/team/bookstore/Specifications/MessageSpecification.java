@@ -66,8 +66,11 @@ public class MessageSpecification {
         return new Specification<Message>() {
             @Override
             public Predicate toPredicate(Root<Message> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return criteriaBuilder.equal(root.get("sender").get("id"),
-                        sender_id);
+                return criteriaBuilder.or(
+                        criteriaBuilder.equal(root.get("sender").get("id"),
+                        sender_id),
+                        criteriaBuilder.equal(root.get("receiver").get("id"),
+                                sender_id));
             }
         };
     }

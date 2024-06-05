@@ -7,19 +7,17 @@ import com.team.bookstore.Entities.Message;
 import com.team.bookstore.Mappers.MessageMapper;
 import com.team.bookstore.Services.MessageService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.apache.coyote.Response;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-
-import java.text.SimpleDateFormat;
 
 @RestController
 @RequestMapping("/message")
 @SecurityRequirement(name = "bearerAuth")
+@Log4j2
 public class MessageController {
     @Autowired
     MessageService messageService;
@@ -30,7 +28,9 @@ public class MessageController {
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(MessageRequest messageRequest) {
-        Message         message  = messageMapper.toMessage(messageRequest);
+        log.info(messageRequest.getReceiver_id());
+        log.info(messageRequest.getReceiver_id());
+        Message    message  = messageMapper.toMessage(messageRequest);
         MessageResponse response = messageService.createMessage(message);
         String destination = "/queue/" + message.getReceiver().getUsername();
         messagingTemplate.convertAndSend(destination, response);
@@ -42,6 +42,7 @@ public class MessageController {
         messagingTemplate.convertAndSend(destination,
                 messageMapper.toMessage(messageRequest));
     }
+
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllMessages()

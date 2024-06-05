@@ -15,6 +15,18 @@ spring:
     url: jdbc:postgresql://tiny.db.elephantsql.com:5432/kdzdiuud
     username: kdzdiuud
     password: zX-RCvKxRQCJtYz4yb5hf6pERL4mTI3T
+    tomcat:
+      test-while-idle: true
+      validation-query: SELECT 1
+      time-between-eviction-runs-millis: 60000
+      remove-abandoned: true
+      remove-abandoned-timeout: 60
+    hikari:
+      idle-timeout: 600000
+      validation-timeout: 300000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
   banner:
     location: banner.txt
   mvc:
