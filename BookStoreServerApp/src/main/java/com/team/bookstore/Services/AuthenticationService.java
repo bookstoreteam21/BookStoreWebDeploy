@@ -72,6 +72,7 @@ public class AuthenticationService {
         user.setToken(GenerateToken(user));
         userRepository.save(user);
         return AuthenticationResponse.builder()
+                .id(user.getId())
                 .username(username)
                 .token(user.getToken())
                 .build();

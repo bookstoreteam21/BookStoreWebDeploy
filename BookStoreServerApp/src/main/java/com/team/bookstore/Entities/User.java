@@ -1,4 +1,5 @@
 package com.team.bookstore.Entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,9 +32,11 @@ public class User extends Auditable{
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     StaffInformation staff_information;
     @JsonManagedReference("sender")
-    @OneToMany(mappedBy = "sender",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "sender")
+    @JsonIgnore
     Set<Message>  send_messages;
     @JsonManagedReference("receiver")
-    @OneToMany(mappedBy = "receiver",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "receiver")
+    @JsonIgnore
     Set<Message>  receive_messages;
 }

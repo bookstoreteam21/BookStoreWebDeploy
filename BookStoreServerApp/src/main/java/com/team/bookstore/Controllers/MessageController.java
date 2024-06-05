@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,26 +25,6 @@ public class MessageController {
     MessageService messageService;
     @Autowired
     MessageMapper  messageMapper;
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    @MessageMapping("/chat.sendMessage")
-    public void sendMessage(MessageRequest messageRequest) {
-        log.info(messageRequest.getReceiver_id());
-        log.info(messageRequest.getReceiver_id());
-        Message    message  = messageMapper.toMessage(messageRequest);
-        MessageResponse response = messageService.createMessage(message);
-        String destination = "/queue/" + message.getReceiver().getUsername();
-        messagingTemplate.convertAndSend(destination, response);
-    }
-
-    @MessageMapping("/chat.addUser")
-    public void addUser(MessageRequest messageRequest) {
-        String destination = "/topic/public";
-        messagingTemplate.convertAndSend(destination,
-                messageMapper.toMessage(messageRequest));
-    }
-
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/all")
     public ResponseEntity<APIResponse<?>> getAllMessages()

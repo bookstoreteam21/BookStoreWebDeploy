@@ -58,22 +58,20 @@ public class MessageService {
     }
     public MessageResponse createMessage(Message message){
         try{
-            Authentication authentication =
-                    SecurityContextHolder.getContext().getAuthentication();
-            if(authentication == null) {
-                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+            User sender =
+                    userRepository.findUserById(message.getSender().getId());
+            if(sender==null){
+                throw new ObjectException(Object.USER + " "+message.getSender().getId(),ErrorCodes.NOT_EXIST);
             }
-            int sender_id =
-                    userRepository.findUsersByUsername(authentication.getName()).getId();
-
             if(!userRepository.existsById(message.getReceiver().getId())){
                 throw new ObjectException(Object.RECEIVER.getName(),
                         ErrorCodes.NOT_EXIST);
             }
-            User sender =
-                    userRepository.findUserById(sender_id);
             User receiver =
                     userRepository.findUserById(message.getReceiver().getId());
+            if(receiver==null){
+                throw new ObjectException(Object.USER + " "+message.getReceiver().getId(),ErrorCodes.NOT_EXIST);
+            }
             message.setSender(sender);
             message.setReceiver(receiver);
             message.setMessage_status(0);

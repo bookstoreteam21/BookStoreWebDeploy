@@ -12,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageRequest {
     @NotNull
+    int sender_id;
+    @NotNull
     int receiver_id;
     @NotNull
     String message_content;

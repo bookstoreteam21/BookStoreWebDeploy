@@ -16,7 +16,8 @@ public interface MessageMapper {
     @Mapping(target = "updateAt",ignore = true)
     @Mapping(target = "createBy",ignore = true)
     @Mapping(target = "updateBy",ignore = true)
-    @Mapping(target = "sender",ignore = true)
+    @Mapping(target = "sender",source = "sender_id",qualifiedByName =
+            "toSender")
     @Mapping(target = "receiver",source = "receiver_id",qualifiedByName =
             "toReceiver")
     Message toMessage(MessageRequest messageRequest);
@@ -26,6 +27,13 @@ public interface MessageMapper {
         user.setId(receiver_id);
         return user;
     }
+    @Named("toSender")
+    default User toSender(int sender_id){
+        User user = new User();
+        user.setId(sender_id);
+        return user;
+    }
+
     @Mapping(target = "sender_id",source = "sender",qualifiedByName =
             "toSender_id")
     @Mapping(target = "receiver_id",source = "receiver",qualifiedByName =

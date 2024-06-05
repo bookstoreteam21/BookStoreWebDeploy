@@ -3,6 +3,8 @@ import com.team.bookstore.Enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -10,9 +12,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.config.ldap.EmbeddedLdapServerContextSourceFactoryBean;
 import org.springframework.security.config.ldap.LdapBindAuthenticationManagerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,8 +54,7 @@ public class SecurityConfig{
                         .requestMatchers(CustomerEndpoints).hasAnyRole(Role.CUSTOMER.name(),Role.ADMIN.name())
                         .requestMatchers(StaffEndpoints).hasAnyRole(Role.STAFF.name(),Role.ADMIN.name())
                         .requestMatchers("/delete","/user").hasRole(Role.ADMIN.name())
-                        .requestMatchers("/message/loadchat","/app/chat" +
-                                ".sendMessage","/message").authenticated()
+                        .requestMatchers("/message/loadchat").authenticated()
                         .anyRequest().permitAll()
                 )
                 .cors(c->c.configurationSource(config.corsFilter()))
@@ -82,4 +85,6 @@ public class SecurityConfig{
 
         return jwtAuthenticationConverter;
     }
+
+
 }
