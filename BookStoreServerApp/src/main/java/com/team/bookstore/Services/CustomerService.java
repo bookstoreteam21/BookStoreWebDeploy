@@ -118,7 +118,7 @@ public class CustomerService {
                     customerInformationRepository.save(customerInformation);
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
-        } catch(Exception e){
+        } catch(ObjectException e){
             log.info(e);
             throw e;
         }
