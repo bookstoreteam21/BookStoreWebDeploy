@@ -117,7 +117,7 @@ public class CustomerService {
                     customerInformationRepository.save(customerInformation);
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
-        } catch(Exception e){
+        } catch(ObjectException | IOException e){
             log.info(e);
             throw new ObjectException(Object.CUSTOMERINF,
                     ErrorCodes.CANNOT_CREATE);
