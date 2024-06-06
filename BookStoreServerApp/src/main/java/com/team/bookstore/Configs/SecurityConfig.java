@@ -56,6 +56,7 @@ public class SecurityConfig{
                         .requestMatchers("/message/loadchat").authenticated()
                         .anyRequest().permitAll()
                 )
+                .cors(c->c.configurationSource(config.corsFilter()))
                 //.sessionManagement(sess -> sess.sessionCreationPolicy
                 // (SessionCreationPolicy.ALWAYS)
                         //.invalidSessionUrl("/v1/login?expired")
