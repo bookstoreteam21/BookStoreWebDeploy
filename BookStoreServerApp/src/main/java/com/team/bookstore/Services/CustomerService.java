@@ -98,9 +98,9 @@ public class CustomerService {
                                                                  MultipartFile image,
             CustomerInformation customerInformation) {
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            customerInformation.setAvatar(compressImage);
+           // byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
+                   // 0.2f);
+            customerInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(id)){
                 throw new ObjectException(Object.USER.getName(),
                         ErrorCodes.NOT_EXIST);
@@ -121,10 +121,11 @@ public class CustomerService {
             log.info("nameeeeeee"+ savedCustomerInformation.getFullname());
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
-        } catch(ObjectException | IOException e){
+        } catch(Exception e){
             log.info(e);
+            throw new ObjectException(Object.CUSTOMERINF,
+                    ErrorCodes.CANNOT_CREATE);
         }
-        return null;
     }
     public CustomerInformationResponse updateCustomerInformation(int id,
                                                                  MultipartFile image,
