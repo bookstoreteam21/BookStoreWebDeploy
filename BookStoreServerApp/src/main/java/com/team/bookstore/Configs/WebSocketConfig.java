@@ -35,8 +35,7 @@ import java.util.Map;
 @EnableWebSocketMessageBroker
 @Log4j2
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    @Autowired
-    AuthenticationService authenticationService;
+    @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*").withSockJS();
