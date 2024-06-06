@@ -29,7 +29,7 @@ dependencies {
 
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.2.3'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //nimbus
     implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.38-rc3'
     //oauth2
@@ -56,4 +56,11 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.1'
     //jackson data bind
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
+
+}
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            '-Xlint:unchecked',
+            '-Xlint:deprecation'
+    ]
 }

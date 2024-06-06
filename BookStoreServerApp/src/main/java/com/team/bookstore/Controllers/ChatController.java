@@ -25,7 +25,6 @@ public class ChatController {
     MessageService messageService;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-    @SecurityRequirement(name = "bearerAuth")
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(MessageRequest messageRequest) {
         try {
