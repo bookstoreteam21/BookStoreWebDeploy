@@ -105,8 +105,9 @@ public class CustomerService {
                 throw new ObjectException(Object.USER.getName(),
                         ErrorCodes.NOT_EXIST);
             }
+            log.info("000000000000000000000000000000000000000000000000000");
             customerInformation.setId(id);
-
+            log.info("111111111111111111111111111111111111111111111111111111");
             if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
                 throw new ObjectException(customerInformation.getEmail(),
                         ErrorCodes.HAS_BEEN_EXIST);
@@ -116,6 +117,8 @@ public class CustomerService {
             }
             CustomerInformation savedCustomerInformation =
                     customerInformationRepository.save(customerInformation);
+            log.info("iddddd" + savedCustomerInformation.getId());
+            log.info("nameeeeeee"+ savedCustomerInformation.getFullname());
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
         } catch(ObjectException e){

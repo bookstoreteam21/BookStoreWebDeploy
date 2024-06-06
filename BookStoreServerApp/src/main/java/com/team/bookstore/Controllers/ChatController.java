@@ -28,10 +28,6 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(MessageRequest messageRequest) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null) {
-                log.info("!!!!!!!!!!!!!!!!!!!!!NULL");
-            }
             Message         message     = messageMapper.toMessage(messageRequest);
             MessageResponse response    = messageService.createMessage(message);
             String          destination = "/queue/" + message.getReceiver().getUsername();
