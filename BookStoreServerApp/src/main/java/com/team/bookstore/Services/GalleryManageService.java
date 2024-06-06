@@ -53,9 +53,7 @@ public class GalleryManageService {
     public GalleryManageResponse addGallery(MultipartFile image,
                                             GalleryManage galleryManage){
         try{
-            byte[] compressedImage =
-                    ImageUtils.compressImage(image.getBytes(),0.2f);
-            galleryManage.setThumbnail(compressedImage);
+            galleryManage.setThumbnail(image.getBytes());
             return galleryManageMapper.toGalleryManageResponse(galleryManageRepository.save(galleryManage));
         }catch(Exception e){
             log.info(e);
@@ -67,9 +65,7 @@ public class GalleryManageService {
     public GalleryManageResponse updateGallery(int id, MultipartFile image,
                                                GalleryManage galleryManage){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            galleryManage.setThumbnail(compressImage);
+            galleryManage.setThumbnail(image.getBytes());
             if(!galleryManageRepository.existsById(id)){
                 throw new ObjectException(Object.GALLERY.getName(), ErrorCodes.NOT_EXIST);
             }

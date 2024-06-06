@@ -69,9 +69,7 @@ public class StaffService {
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            staffInformation.setAvatar(compressImage);
+            staffInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(id)){
                 throw new ObjectException(Object.USER.getName(),
                         ErrorCodes.NOT_EXIST);
@@ -119,18 +117,16 @@ public class StaffService {
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            staffInformation.setAvatar(compressImage);
+            staffInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(staffInformation.getId()) && staffInformationRepository.existsStaffInformationById(staffInformation.getId())){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
             staffInformation.setId(id);
-            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())){
+            if(staffInformationRepository.existsStaffInformationByEmail(staffInformation.getEmail())&&!staffInformationRepository.existsStaffInformationByIdAndEmail(id,staffInformation.getEmail())){
                 throw new ObjectException(staffInformation.getEmail(),
                         ErrorCodes.HAS_BEEN_EXIST);
             }
-            if(staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())){
+            if(staffInformationRepository.existsStaffInformationByPhonenumber(staffInformation.getPhonenumber())&&!staffInformationRepository.existsStaffInformationByIdAndPhonenumber(id,staffInformation.getPhonenumber())){
                 throw new ObjectException(staffInformation.getPhonenumber(),
                         ErrorCodes.HAS_BEEN_EXIST);
             }

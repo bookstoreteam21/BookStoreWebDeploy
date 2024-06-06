@@ -18,4 +18,7 @@ public interface CustomerInformationRepository extends JpaRepository<CustomerInf
     CustomerInformation findCustomerInformationByEmail(String email);
     boolean existsCustomerInformationByPhonenumber(String phoneNumber);
     boolean existsCustomerInformationByEmail(String email);
+    boolean existsCustomerInformationByIdAndPhonenumber(int id,
+                                                        String phonenumber);
+    boolean existsCustomerInformationByIdAndEmail(int id, String email);
 }

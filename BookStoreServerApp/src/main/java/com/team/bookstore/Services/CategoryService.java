@@ -49,9 +49,7 @@ public class CategoryService {
     public CategoryResponse createCategory(MultipartFile image,
                                            Category category){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            category.setAvatar(compressImage);
+            category.setAvatar(image.getBytes());
             return categoryMapper.toCategoryResponse(categoryRepository.save(category));
         }catch(Exception e){
             log.info(e);
@@ -63,9 +61,7 @@ public class CategoryService {
     public CategoryResponse updateCategory(int id,MultipartFile image,
                                            Category category){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            category.setAvatar(compressImage);
+            category.setAvatar(image.getBytes());
             if(!categoryRepository.existsById(id)){
                 throw new ObjectException(category.getName(),
                         ErrorCodes.NOT_EXIST);

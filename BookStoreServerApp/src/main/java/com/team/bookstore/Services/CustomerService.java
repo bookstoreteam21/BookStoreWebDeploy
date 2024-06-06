@@ -105,9 +105,7 @@ public class CustomerService {
                 throw new ObjectException(Object.USER.getName(),
                         ErrorCodes.NOT_EXIST);
             }
-            log.info("000000000000000000000000000000000000000000000000000");
             customerInformation.setId(id);
-            log.info("111111111111111111111111111111111111111111111111111111");
             if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
                 throw new ObjectException(customerInformation.getEmail(),
                         ErrorCodes.HAS_BEEN_EXIST);
@@ -117,8 +115,6 @@ public class CustomerService {
             }
             CustomerInformation savedCustomerInformation =
                     customerInformationRepository.save(customerInformation);
-            log.info("iddddd" + savedCustomerInformation.getId());
-            log.info("nameeeeeee"+ savedCustomerInformation.getFullname());
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
         } catch(Exception e){
@@ -131,18 +127,16 @@ public class CustomerService {
                                                                  MultipartFile image,
                                                                  CustomerInformation customerInformation){
         try{
-            byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
-                    0.2f);
-            customerInformation.setAvatar(compressImage);
+            customerInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(customerInformation.getId()) && customerInformationRepository.existsCustomerInformationById(customerInformation.getId())){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
             }
             customerInformation.setId(id);
-            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())){
+            if(customerInformationRepository.existsCustomerInformationByEmail(customerInformation.getEmail())&&!customerInformationRepository.existsCustomerInformationByIdAndEmail(id,customerInformation.getEmail())){
                 throw new ObjectException(customerInformation.getEmail(),
                         ErrorCodes.HAS_BEEN_EXIST);
             }
-            if(customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())){
+            if(customerInformationRepository.existsCustomerInformationByPhonenumber(customerInformation.getPhonenumber())&&!customerInformationRepository.existsCustomerInformationByIdAndPhonenumber(id,customerInformation.getPhonenumber())){
                 throw new ObjectException(customerInformation.getPhonenumber(),ErrorCodes.HAS_BEEN_EXIST);
             }
             CustomerInformation savedCustomerInformation = customerInformationRepository.save(customerInformation);
