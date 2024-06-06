@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -95,7 +96,7 @@ public class CustomerService {
     }
     public CustomerInformationResponse createCustomerInformation(int id,
                                                                  MultipartFile image,
-            CustomerInformation customerInformation){
+            CustomerInformation customerInformation) throws IOException {
         try{
             byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
                     0.2f);
@@ -119,7 +120,7 @@ public class CustomerService {
 
         } catch(Exception e){
             log.info(e);
-            throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
+            throw e;
         }
     }
     public CustomerInformationResponse updateCustomerInformation(int id,

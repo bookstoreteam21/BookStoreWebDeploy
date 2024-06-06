@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.function.EntityResponse;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
@@ -74,7 +76,7 @@ public class CustomerController {
     }
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/create/info/{id}")
-    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestPart MultipartFile image, @RequestPart CustomerInformationRequest customerInformationRequest){
+    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestPart MultipartFile image, @RequestPart CustomerInformationRequest customerInformationRequest) throws IOException {
         CustomerInformationResponse result =
                 customerService.createCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));
