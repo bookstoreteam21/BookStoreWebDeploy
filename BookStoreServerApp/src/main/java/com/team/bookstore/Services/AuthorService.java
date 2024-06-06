@@ -66,7 +66,8 @@ public class AuthorService {
     public List<AuthorResponse> findAuthorBy(String keyword){
         try{
             Specification<Author> spec = GenerateAuthorKeywordSpec(keyword);
-            return authorRepository.findAll(spec).stream().map(authorMapper::toAuthorResponse).collect(Collectors.toList());
+            return authorRepository.findAll(spec).stream().map(authorMapper::toAuthorResponse)
+                    .collect(Collectors.toList());
         } catch(Exception e){
             log.info(e);
             throw new ObjectException(keyword,ErrorCodes.NOT_FOUND);
