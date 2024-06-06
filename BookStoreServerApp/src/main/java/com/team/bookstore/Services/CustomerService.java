@@ -96,7 +96,7 @@ public class CustomerService {
     }
     public CustomerInformationResponse createCustomerInformation(int id,
                                                                  MultipartFile image,
-            CustomerInformation customerInformation) throws IOException {
+            CustomerInformation customerInformation) {
         try{
             byte[] compressImage = ImageUtils.compressImage(image.getBytes(),
                     0.2f);
@@ -121,10 +121,10 @@ public class CustomerService {
             log.info("nameeeeeee"+ savedCustomerInformation.getFullname());
             return userMapper.toCustomerInformationResponse(savedCustomerInformation);
 
-        } catch(ObjectException e){
+        } catch(ObjectException | IOException e){
             log.info(e);
-            throw e;
         }
+        return null;
     }
     public CustomerInformationResponse updateCustomerInformation(int id,
                                                                  MultipartFile image,
