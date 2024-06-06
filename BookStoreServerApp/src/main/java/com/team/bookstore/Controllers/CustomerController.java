@@ -76,7 +76,7 @@ public class CustomerController {
     }
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/create/info/{id}")
-    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestPart MultipartFile image, @RequestPart CustomerInformationRequest customerInformationRequest) throws IOException {
+    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image,@RequestPart CustomerInformationRequest customerInformationRequest) throws IOException {
         CustomerInformationResponse result =
                 customerService.createCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));

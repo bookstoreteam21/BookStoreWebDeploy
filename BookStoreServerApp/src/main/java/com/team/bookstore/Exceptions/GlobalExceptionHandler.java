@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ApplicationException.class)
     ResponseEntity<APIResponse<?>> applicationExceptionHandler(ApplicationException applicationException){
         log.info("Error: " + applicationException);
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.internalServerError().body(
             APIResponse.builder()
                     .code(applicationException.getErrorCodes().getCode())
                     .message(applicationException.getMessage())
