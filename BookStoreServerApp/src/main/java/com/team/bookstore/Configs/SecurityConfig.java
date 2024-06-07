@@ -52,7 +52,8 @@ public class SecurityConfig{
                         .requestMatchers(PublicEndpoints).permitAll()
                         .requestMatchers(CustomerEndpoints).hasAnyRole(Role.CUSTOMER.name(),Role.ADMIN.name())
                         .requestMatchers(StaffEndpoints).hasAnyRole(Role.STAFF.name(),Role.ADMIN.name())
-                        .requestMatchers("/delete","/user").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/delete","/user","/staff/create/info",
+                                "/staff/update/info").hasRole(Role.ADMIN.name())
                         .requestMatchers("/message/loadchat").authenticated()
                         .anyRequest().permitAll()
                 )
