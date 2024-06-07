@@ -32,6 +32,8 @@ dependencies {
     //testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //nimbus
     implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.38-rc3'
+
+
     //oauth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     //mapstruct
