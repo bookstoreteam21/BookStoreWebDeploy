@@ -19,8 +19,8 @@ public class GalleryManageController {
     GalleryManageMapper galleryManageMapper;
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/add")
-    public ResponseEntity<APIResponse<?>> addGallery(@RequestPart MultipartFile image,
-                                                     @RequestPart GalleryManageRequest galleryManageRequest){
+    public ResponseEntity<APIResponse<?>> addGallery(@RequestParam MultipartFile image,
+                                                     @ModelAttribute GalleryManageRequest galleryManageRequest){
         GalleryManageResponse result =
                 galleryManageService.addGallery(image,
                         galleryManageMapper.toGalleryManage(galleryManageRequest));
@@ -37,8 +37,8 @@ public class GalleryManageController {
     @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/update/{id}")
     public ResponseEntity<APIResponse<?>> updateGallery(@PathVariable int id,
-                                                        @RequestPart MultipartFile image,
-                                                         @RequestPart GalleryManageRequest galleryManageRequest){
+                                                        @RequestParam MultipartFile image,
+                                                         @ModelAttribute GalleryManageRequest galleryManageRequest){
         GalleryManageResponse result =
                 galleryManageService.updateGallery(id,image,
                 galleryManageMapper.toGalleryManage(galleryManageRequest));

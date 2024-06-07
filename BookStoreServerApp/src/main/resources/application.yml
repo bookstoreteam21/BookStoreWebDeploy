@@ -10,6 +10,11 @@ spring:
         show_sql: true
     generate-ddl: true
     open-in-view: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1MB
+      max-request-size: 1MB
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://tiny.db.elephantsql.com:5432/kdzdiuud

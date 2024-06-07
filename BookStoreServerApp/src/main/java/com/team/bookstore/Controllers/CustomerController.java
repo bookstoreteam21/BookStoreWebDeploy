@@ -10,6 +10,7 @@ import com.team.bookstore.Services.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,8 +76,9 @@ public class CustomerController {
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
     }
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/create/info/{id}")
-    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image,@RequestPart CustomerInformationRequest customerInformationRequest) throws IOException {
+    @PostMapping(value = "/create/info/{id}" ,consumes =
+            MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image,@ModelAttribute CustomerInformationRequest customerInformationRequest) throws IOException {
         CustomerInformationResponse result =
                 customerService.createCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));
@@ -84,7 +86,7 @@ public class CustomerController {
     }
     @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/update/info/{id}")
-    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestPart MultipartFile image, @RequestPart CustomerInformationRequest customerInformationRequest){
+    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestParam MultipartFile image, @ModelAttribute CustomerInformationRequest customerInformationRequest){
         CustomerInformationResponse result =
                 customerService.updateCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));

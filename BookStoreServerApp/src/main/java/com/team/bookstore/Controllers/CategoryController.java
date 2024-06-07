@@ -22,7 +22,7 @@ public class CategoryController {
     CategoryMapper categoryMapper;
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/add")
-    public ResponseEntity<APIResponse<?>> addCategory(@RequestPart MultipartFile image, @RequestPart CategoryRequest categoryRequest){
+    public ResponseEntity<APIResponse<?>> addCategory(@RequestParam MultipartFile image, @ModelAttribute CategoryRequest categoryRequest){
         CategoryResponse result =
                 categoryService.createCategory(image,
                         categoryMapper.toCategory(categoryRequest));
@@ -39,8 +39,8 @@ public class CategoryController {
     @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/update/{id}")
     public ResponseEntity<APIResponse<?>> updateCategory(@PathVariable int id
-            , @RequestPart MultipartFile image,
-                                                         @RequestPart CategoryRequest categoryRequest){
+            , @RequestParam MultipartFile image,
+                                                         @ModelAttribute CategoryRequest categoryRequest){
         CategoryResponse result = categoryService.updateCategory(id,image,
                 categoryMapper.toCategory(categoryRequest));
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
