@@ -78,7 +78,7 @@ public class CustomerController {
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping(value = "/create/info/{id}" ,consumes =
             MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image,@ModelAttribute CustomerInformationRequest customerInformationRequest) throws IOException {
+    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image,@RequestPart CustomerInformationRequest customerInformationRequest) throws IOException {
         CustomerInformationResponse result =
                 customerService.createCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));
@@ -86,7 +86,7 @@ public class CustomerController {
     }
     @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/update/info/{id}")
-    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestParam MultipartFile image, @ModelAttribute CustomerInformationRequest customerInformationRequest){
+    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestParam MultipartFile image, @RequestPart CustomerInformationRequest customerInformationRequest){
         CustomerInformationResponse result =
                 customerService.updateCustomerInformation(id,image,
                         userMapper.toCustomerInformation(customerInformationRequest));
