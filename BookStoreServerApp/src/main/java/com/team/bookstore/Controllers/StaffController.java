@@ -62,14 +62,14 @@ public class StaffController {
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
     }
     @PostMapping("/create/info/{id}")
-    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image, @ModelAttribute StaffInformationRequest staffInformationRequest){
+    public ResponseEntity<APIResponse<?>> createCustomerInformation(@PathVariable int id, @RequestParam MultipartFile image, @RequestParam StaffInformationRequest staffInformationRequest){
         StaffInformationResponse result =
                 staffService.createStaffInformation(id,image,
                         userMapper.toStaffInformation(staffInformationRequest));
         return ResponseEntity.ok(APIResponse.builder().code(200).message("OK").result(result).build());
     }
     @PatchMapping("/update/info/{id}")
-    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestParam MultipartFile image ,@ModelAttribute StaffInformationRequest staffInformationRequest){
+    public ResponseEntity<APIResponse<?>> updateCustomerInformation(@PathVariable int id,@RequestParam MultipartFile image ,@RequestParam StaffInformationRequest staffInformationRequest){
         StaffInformationResponse result =
                 staffService.updateStaffInformation(id,image,
                         userMapper.toStaffInformation(staffInformationRequest));
