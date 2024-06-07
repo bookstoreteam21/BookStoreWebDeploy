@@ -24,7 +24,8 @@ public class User extends Auditable{
     String password;
     String token;
     @JsonManagedReference("user")
-    @OneToMany(mappedBy = "user",cascade = CascadeType.PERSIST,fetch =
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}
+            ,fetch =
             FetchType.EAGER)
     Set<User_Role> user_role = new HashSet<>();
     @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL)
