@@ -45,9 +45,18 @@ public class StaffService {
     RoleRepository roleRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
-    @Secured("ROLE_ADMIN")
     public UserResponse staffRegister(User user){
         try {
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null){
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+            }
+            User authUser =
+                    userRepository.findUsersByUsername(authentication.getName());
+            if(authUser == null){
+                throw new ApplicationException(ErrorCodes.UNAUTHORISED);
+            }
             if(userRepository.existsByUsername(user.getUsername())){
                 throw new ObjectException(user.getUsername(),
                         ErrorCodes.HAS_BEEN_EXIST);
@@ -64,11 +73,20 @@ public class StaffService {
             throw new ApplicationException(ErrorCodes.REGISTER_FAILD);
         }
     }
-    @Secured("ROLE_ADMIN")
     public StaffInformationResponse createStaffInformation(int id,
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null){
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+            }
+            User authUser =
+                    userRepository.findUsersByUsername(authentication.getName());
+            if(authUser == null){
+                throw new ApplicationException(ErrorCodes.UNAUTHORISED);
+            }
             staffInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(id)){
                 throw new ObjectException(Object.USER.getName(),
@@ -112,11 +130,20 @@ public class StaffService {
                     ErrorCodes.NOT_EXIST);
         }
     }
-    @Secured("ROLE_ADMIN")
     public StaffInformationResponse updateStaffInformation(int id,
                                                            MultipartFile image,
                                                                  StaffInformation staffInformation){
         try{
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null){
+                throw new ApplicationException(ErrorCodes.UNAUTHENTICATED);
+            }
+            User authUser =
+                    userRepository.findUsersByUsername(authentication.getName());
+            if(authUser == null){
+                throw new ApplicationException(ErrorCodes.UNAUTHORISED);
+            }
             staffInformation.setAvatar(image.getBytes());
             if(!userRepository.existsById(staffInformation.getId()) && staffInformationRepository.existsStaffInformationById(staffInformation.getId())){
                 throw new ApplicationException(ErrorCodes.USER_NOT_EXIST);
