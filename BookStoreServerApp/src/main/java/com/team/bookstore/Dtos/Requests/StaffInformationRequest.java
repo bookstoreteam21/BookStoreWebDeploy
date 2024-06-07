@@ -16,25 +16,12 @@ import java.util.Date;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StaffInformationRequest{
-    @NotNull
     String fullname;
-    @NotNull
-    @BooleanFlag
     Boolean gender;
-    @NotNull
-    @DateTimeFormat
     Date birthday;
-    @NotNull
-    @Digits(integer = 10,fraction = 0)
     String phonenumber;
-    @NotNull
-    @Email
     String email;
-    @NotNull
     String address;
-    @NotNull
-    @DateTimeFormat
     Date initiate_time;
-    @Digits(integer = 10000,fraction = 0)
     int salary;
 }
