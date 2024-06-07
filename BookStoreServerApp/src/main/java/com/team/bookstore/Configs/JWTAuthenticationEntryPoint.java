@@ -16,7 +16,7 @@ public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        ErrorCodes errorCode = ErrorCodes.UN_AUTHENTICATED;
+        ErrorCodes errorCode = ErrorCodes.UNAUTHENTICATED;
 
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

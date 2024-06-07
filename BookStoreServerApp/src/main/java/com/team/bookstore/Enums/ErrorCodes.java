@@ -13,7 +13,6 @@ public enum ErrorCodes {
             HttpStatus.NOT_ACCEPTABLE),
     UN_AUTHORISED(14,"Bạn không có quyền truy cập vào nội dung này!",
             HttpStatus.UNAUTHORIZED),
-    UN_AUTHENTICATED(15,"Bạn chưa được xác thực!",HttpStatus.NOT_ACCEPTABLE),
     USER_HAS_BEEN_EXIST(16,"Tài khoản đã tồn tại!",
             HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_USER(17,"Tài khoản không hợp lệ!",HttpStatus.BAD_REQUEST),
