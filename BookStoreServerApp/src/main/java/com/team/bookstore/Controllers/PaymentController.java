@@ -1,6 +1,7 @@
 package com.team.bookstore.Controllers;
 
 import com.team.bookstore.Dtos.Responses.APIResponse;
+import com.team.bookstore.Dtos.Responses.VNPAYResponse;
 import com.team.bookstore.Entities.Payment;
 import com.team.bookstore.Mappers.PaymentMapper;
 import com.team.bookstore.Services.PaymentService;
@@ -12,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/payment")
@@ -42,21 +45,24 @@ public class PaymentController {
         return ResponseEntity.ok(APIResponse.builder().message("OK").code(200).result(paymentService.payForOrder(order_id,method)).build());
     }
     @GetMapping("/vnpay-result")
-    public String vnpayResult(HttpServletRequest request,
-                              @RequestParam String vnp_TxnRef, Model model){
-        paymentService.verifyPayment(vnp_TxnRef);
-        model.addAttribute("vnp_TxnRef",vnp_TxnRef);
-        model.addAttribute("vnp_Amount",request.getParameter("vnp_Amount"));
-        model.addAttribute("vnp_OrderInfo",request.getParameter(
-                "vnp_OrderInfo"));
-        model.addAttribute("vnp_ResponseCode",request.getParameter(
-                "vnp_ResponseCode"));
-        model.addAttribute("vnp_TransactionNo",request.getParameter(
-                "vnp_TransactionNo"));
-        model.addAttribute("vnp_BankCode",request.getParameter("vnp_BankCode"));
-        model.addAttribute("vnp_PayDate",request.getParameter("vnp_PayDate"));
-        model.addAttribute("vnp_TransactionStatus",request.getParameter(
-                "vnp_TransactionStatus"));
-        return "vnpay_return";
+    public VNPAYResponse vnpayResult(HttpServletRequest request,
+                                     @RequestParam String vnp_TxnRef){
+        if(Objects.equals(request.getParameter(
+                "vnp_TransactionStatus"), "00")) {
+            paymentService.verifyPayment(vnp_TxnRef);
+        }
+        return VNPAYResponse.builder()
+                .vnp_TxnRef(vnp_TxnRef)
+                .vnp_Amount(request.getParameter("vnp_Amount"))
+                .vnp_OrderInfo(request.getParameter("vnp_OrderInfo"))
+                .vnp_ResponseCode(request.getParameter(
+                        "vnp_ResponseCode"))
+                .vnp_TransactionNo(request.getParameter(
+                        "vnp_TransactionNo"))
+                .vnp_BankCode(request.getParameter("vnp_BankCode"))
+                .vnp_PayDate(request.getParameter("vnp_PayDate"))
+                .vnp_TransactionStatus(request.getParameter(
+                        "vnp_TransactionStatus"))
+                .build();
     }
 }
